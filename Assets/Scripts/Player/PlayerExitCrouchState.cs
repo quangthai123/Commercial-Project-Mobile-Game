@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerRunState : PlayerOnGroundState
+public class PlayerExitCrouchState : PlayerStates
 {
-    public PlayerRunState(Player _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
+    public PlayerExitCrouchState(Player _player, PlayerStateMachine _stateMachine, string _animBoolName) : base(_player, _stateMachine, _animBoolName)
     {
     }
 
@@ -15,20 +15,18 @@ public class PlayerRunState : PlayerOnGroundState
     public override void Exit()
     {
         base.Exit();
-        rb.velocity = Vector3.zero;
     }
 
 
     public override void Update()
     {
         base.Update();
-        rb.velocity = new Vector2(player.moveSpeed * horizontalInput, 0f);
+        if (finishAnim)
+            stateMachine.ChangeState(player.idleState);
     }
 
     protected override void ChangeStateByInput()
     {
         base.ChangeStateByInput();
-        if (horizontalInput == 0)
-            stateMachine.ChangeState(player.idleState);
     }
 }

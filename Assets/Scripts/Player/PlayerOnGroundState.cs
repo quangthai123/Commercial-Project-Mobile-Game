@@ -23,6 +23,8 @@ public class PlayerOnGroundState : PlayerStates
         base.Update();
         if (!player.CheckGrounded())
             stateMachine.ChangeState(player.fallState);
+        if(player.CheckCeilling())
+            stateMachine.ChangeState(player.crouchState);
     }
     protected override void ChangeStateByInput()
     {
@@ -40,5 +42,7 @@ public class PlayerOnGroundState : PlayerStates
         }
         if (Input.GetKeyDown(KeyCode.F))
             stateMachine.ChangeState(player.healState);
+        if (Input.GetKeyDown(KeyCode.S))
+            stateMachine.ChangeState(player.enterCrouchState);
     }
 }

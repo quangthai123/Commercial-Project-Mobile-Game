@@ -10,6 +10,11 @@ public class PlayerIdleState : PlayerOnGroundState
 
     public override void Start()
     {
+        if (player.CheckCeilling())
+        {
+            stateMachine.ChangeState(player.crouchState);
+            return;
+        }
         base.Start();
     }
     public override void Exit()
@@ -25,7 +30,7 @@ public class PlayerIdleState : PlayerOnGroundState
     protected override void ChangeStateByInput()
     {
         base.ChangeStateByInput();
-        if (horizontalInput != 0 || verticalInput != 0)
+        if (horizontalInput != 0)
             stateMachine.ChangeState(player.runState);
     }
 }

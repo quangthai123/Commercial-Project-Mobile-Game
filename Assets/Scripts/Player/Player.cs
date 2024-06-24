@@ -18,6 +18,9 @@ public class Player : Entity
     public PlayerHealState healState { get; private set; }
     public PlayerWallSlideState wallSlideState { get; private set; }
     public PlayerWallJumpState wallJumpState { get; private set; }
+    public PlayerCrouchState crouchState { get; private set; }
+    public PlayerEnterCrouchState enterCrouchState { get; private set; }
+    public PlayerExitCrouchState exitCrouchState { get; private set; }
     #endregion
 
     [Header("Jump Infor")]
@@ -39,6 +42,11 @@ public class Player : Entity
     public float dashSpeed;
     public float dashDuration;
     public float dashCooldown;
+    [Header("Ceilling Collision Infor")]
+    [SerializeField] private Transform ceillingCheckPos1;
+    [SerializeField] private Transform ceillingCheckPos2;
+    [SerializeField] private float ceillingCheckDistance;
+    public bool isCeilled;
     [HideInInspector] public GameObject normalCol;
     [HideInInspector] public GameObject dashCol;
     [HideInInspector] public float dashTimer; 
@@ -60,6 +68,9 @@ public class Player : Entity
         healState = new PlayerHealState(this, stateMachine, "Heal");
         wallSlideState = new PlayerWallSlideState(this, stateMachine, "Walled");
         wallJumpState = new PlayerWallJumpState(this, stateMachine, "Jump");
+        crouchState = new PlayerCrouchState(this, stateMachine, "Crouch");
+        enterCrouchState = new PlayerEnterCrouchState(this, stateMachine, "EnterCrouch");
+        exitCrouchState = new PlayerExitCrouchState(this, stateMachine, "ExitCrouch");
     }
 
     protected override void Start()
@@ -73,10 +84,22 @@ public class Player : Entity
     protected override void Update()
     {
         base.Update();
+        isCeilled = CheckCeilling();
         stateMachine.currentState.Update();
+    }
+    public bool CheckCeilling()
+    {
+        return Physics2D.Raycast(ceillingCheckPos1.position, Vector2.up, ceillingCheckDistance, whatIsGround) || 
+            Physics2D.Raycast(ceillingCheckPos2.position, Vector2.up, ceillingCheckDistance, whatIsGround);
     }
     public void SetFinishCurrentAnimation()
     {
         stateMachine.currentState.SetFinishAnimation();
+    }
+    protected override void OnDrawGizmos()
+    {
+        base.OnDrawGizmos();
+        Gizmos.DrawLine(ceillingCheckPos1.position, new Vector2(ceillingCheckPos1.position.x, ceillingCheckPos1.position.y + ceillingCheckDistance));
+        Gizmos.DrawLine(ceillingCheckPos2.position, new Vector2(ceillingCheckPos2.position.x, ceillingCheckPos2.position.y + ceillingCheckDistance));
     }
 }

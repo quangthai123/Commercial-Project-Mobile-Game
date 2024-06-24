@@ -27,16 +27,21 @@ public class PlayerDashState : PlayerStates
     public override void Update()
     {
         base.Update();
-        if(stateDuration > 0.07f && stateDuration < 0.09f && horizontalInput==0)
+        if(stateDuration > 0.07f && stateDuration < 0.1f && horizontalInput==0)
         {
-            player.anim.SetTrigger("DashStop");
+            if (!player.CheckCeilling())
+                player.anim.SetTrigger("DashStop");
+            else
+                stateMachine.ChangeState(player.crouchState);
         }
         else if (stateDuration < 0f)
         {
             if(horizontalInput == 0)
                 rb.velocity = Vector2.zero;
-            else
+            else if(!player.CheckCeilling())
                 stateMachine.ChangeState(player.runState);
+            else
+                stateMachine.ChangeState(player.crouchState);
         } else
             rb.velocity = new Vector2(player.dashSpeed * player.facingDir, 0f);
         if(!player.CheckGrounded())

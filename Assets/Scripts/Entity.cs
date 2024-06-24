@@ -6,22 +6,22 @@ public class Entity : MonoBehaviour
 {
     public Animator anim { get; protected set; }
     public Rigidbody2D rb { get; protected set; }
-
+    
     public float moveSpeed;
     public int facingDir;
     [Header("Ground collision Infor")]
-    [SerializeField] private float groundCheckDistance;
-    [SerializeField] private LayerMask whatIsGround;
-    [SerializeField] private Transform groundCheckPos1;
-    [SerializeField] private Transform groundCheckPos2;
+    [SerializeField] protected float groundCheckDistance;
+    [SerializeField] protected LayerMask whatIsGround;
+    [SerializeField] protected Transform groundCheckPos1;
+    [SerializeField] protected Transform groundCheckPos2;
     [Header("Wall collision Infor")]
-    [SerializeField] private float wallCheckDistance;
-    [SerializeField] private LayerMask whatIsWall;
-    [SerializeField] private Transform wallCheckPos;
+    [SerializeField] protected float wallCheckDistance;
+    [SerializeField] protected LayerMask whatIsWall;
+    [SerializeField] protected Transform wallCheckPos;
     [Header("Check Opponent Infor")]
-    [SerializeField] private Transform attackPointPos;
-    [SerializeField] private float attackRangeRadius;
-    [SerializeField] private LayerMask opponentLayer;
+    [SerializeField] protected Transform attackPointPos;
+    [SerializeField] protected float attackRangeRadius;
+    [SerializeField] protected LayerMask opponentLayer;
     [HideInInspector] public bool knockFlip;
     protected virtual void Start()
     {
