@@ -30,6 +30,7 @@ public class PlayerJumpState : PlayerAirState
         {
             stateMachine.ChangeState(player.fallState);
         }
+        rb.gravityScale = 6f;
     }
 
     protected override void ChangeStateByInput()

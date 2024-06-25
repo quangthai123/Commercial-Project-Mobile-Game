@@ -30,7 +30,10 @@ public class PlayerWallSlideState : PlayerStates
     {
         base.Update();
         if (player.CheckWalled())
+        {
             rb.velocity = Vector2.zero;
+            rb.gravityScale = 0f;
+        }
         else if(player.stateMachine.currentState != player.wallJumpState)
             stateMachine.ChangeState(player.fallState);
     }

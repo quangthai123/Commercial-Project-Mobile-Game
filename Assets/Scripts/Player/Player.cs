@@ -21,6 +21,7 @@ public class Player : Entity
     public PlayerCrouchState crouchState { get; private set; }
     public PlayerEnterCrouchState enterCrouchState { get; private set; }
     public PlayerExitCrouchState exitCrouchState { get; private set; }
+    public PlayerLandingState landingState { get; private set; }
     #endregion
 
     [Header("Jump Infor")]
@@ -46,10 +47,20 @@ public class Player : Entity
     [SerializeField] private Transform ceillingCheckPos1;
     [SerializeField] private Transform ceillingCheckPos2;
     [SerializeField] private float ceillingCheckDistance;
-    public bool isCeilled;
+    //public bool isCeilled;
     [HideInInspector] public GameObject normalCol;
     [HideInInspector] public GameObject dashCol;
-    [HideInInspector] public float dashTimer; 
+    [HideInInspector] public float dashTimer;
+    [Header("Landing Infor")]
+    public float landingDuration;
+    public float allowLandingTime;
+    [Header("Slope infor")]
+    public bool onSlopeRight = false;
+    public Vector2 slopeMoveDir;
+    [SerializeField] private LayerMask whatIsSlopeGround;
+    [SerializeField] private float slopeCheckDistance;
+    private Vector2 slopeNormalAxis;
+
     private void Awake()
     {
         if (Instance != null)
@@ -71,6 +82,7 @@ public class Player : Entity
         crouchState = new PlayerCrouchState(this, stateMachine, "Crouch");
         enterCrouchState = new PlayerEnterCrouchState(this, stateMachine, "EnterCrouch");
         exitCrouchState = new PlayerExitCrouchState(this, stateMachine, "ExitCrouch");
+        landingState = new PlayerLandingState(this, stateMachine, "Landing");
     }
 
     protected override void Start()
@@ -84,13 +96,39 @@ public class Player : Entity
     protected override void Update()
     {
         base.Update();
-        isCeilled = CheckCeilling();
+        //isCeilled = CheckCeilling();
         stateMachine.currentState.Update();
+        HandleSlopeMoveDir();
     }
     public bool CheckCeilling()
     {
         return Physics2D.Raycast(ceillingCheckPos1.position, Vector2.up, ceillingCheckDistance, whatIsGround) || 
             Physics2D.Raycast(ceillingCheckPos2.position, Vector2.up, ceillingCheckDistance, whatIsGround);
+    }
+    public bool CheckSlope() => Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround);
+    public override bool CheckGrounded()
+    {
+        return Physics2D.Raycast(groundCheckPos1.position, Vector2.down, groundCheckDistance, whatIsGround)
+            || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, groundCheckDistance, whatIsGround) || CheckSlope();
+    }
+    private void HandleSlopeMoveDir()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround);
+        if(hit)
+        {
+            Debug.DrawRay(hit.point, hit.normal, Color.red);
+            Debug.DrawRay(hit.point, Vector2.Perpendicular(hit.normal), Color.green);
+            //if(hit.normal.x > 0)
+            //{
+            //    onSlopeRight = false;
+            //    slopeMoveDir = Vector2.Perpendicular(hit.normal).normalized;
+            //} else
+            //{
+            //    onSlopeRight = true;
+            //    slopeMoveDir = -Vector2.Perpendicular(hit.normal).normalized;
+            //}
+            slopeMoveDir = Vector2.Perpendicular(hit.normal).normalized;
+        }
     }
     public void SetFinishCurrentAnimation()
     {
@@ -101,5 +139,6 @@ public class Player : Entity
         base.OnDrawGizmos();
         Gizmos.DrawLine(ceillingCheckPos1.position, new Vector2(ceillingCheckPos1.position.x, ceillingCheckPos1.position.y + ceillingCheckDistance));
         Gizmos.DrawLine(ceillingCheckPos2.position, new Vector2(ceillingCheckPos2.position.x, ceillingCheckPos2.position.y + ceillingCheckDistance));
+        Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - slopeCheckDistance));
     }
 }

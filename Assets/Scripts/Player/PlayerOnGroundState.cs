@@ -23,8 +23,8 @@ public class PlayerOnGroundState : PlayerStates
         base.Update();
         if (!player.CheckGrounded())
             stateMachine.ChangeState(player.fallState);
-        if(player.CheckCeilling())
-            stateMachine.ChangeState(player.crouchState);
+        //if (player.CheckCeilling())
+        //    stateMachine.ChangeState(player.crouchState);
     }
     protected override void ChangeStateByInput()
     {

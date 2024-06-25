@@ -22,7 +22,16 @@ public class PlayerRunState : PlayerOnGroundState
     public override void Update()
     {
         base.Update();
-        rb.velocity = new Vector2(player.moveSpeed * horizontalInput, 0f);
+        if (!player.CheckSlope())
+            rb.velocity = new Vector2(player.moveSpeed * horizontalInput, 0f);
+        else
+        {
+            rb.velocity = new Vector2(player.moveSpeed * horizontalInput * -player.slopeMoveDir.x, player.moveSpeed * horizontalInput * -player.slopeMoveDir.y);
+            if (horizontalInput == 0)
+                player.knockFlip = true;
+            else
+                player.knockFlip = false;
+        }
     }
 
     protected override void ChangeStateByInput()

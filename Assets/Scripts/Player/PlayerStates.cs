@@ -22,6 +22,8 @@ public class PlayerStates
     {
         player.anim.SetBool(animBoolName, true);
         rb = player.rb;
+        rb.gravityScale = 6f;
+        player.knockFlip = false;
     }
     public virtual void Update()
     {
@@ -34,6 +36,8 @@ public class PlayerStates
     {
         player.anim.SetBool(animBoolName, false);
         finishAnim = false;
+        rb.gravityScale = 6f;
+        player.knockFlip = false;
     }
     public void SetFinishAnimation()
     {

@@ -12,6 +12,7 @@ public class PlayerFallState : PlayerAirState
     {
         base.Start();
         //rb.velocity = Vector3.zero;
+        player.landingDuration = Time.time;
     }
     public override void Exit()
     {
@@ -24,7 +25,23 @@ public class PlayerFallState : PlayerAirState
         base.Update();
         rb.velocity = new Vector2(horizontalInput * player.moveSpeed, rb.velocity.y);
         if (player.CheckGrounded())
-            stateMachine.ChangeState(player.idleState);
+        {
+            if (Time.time - player.landingDuration >= player.allowLandingTime)
+            {
+                stateMachine.ChangeState(player.landingState);
+            } else
+                stateMachine.ChangeState(player.idleState);
+        }
+        if (player.CheckSlope())
+        {
+            player.knockFlip = true;
+            rb.velocity = Vector2.zero;
+            rb.gravityScale = 0f;
+        }
+        else
+        {
+            rb.gravityScale = 6f;
+        }
     }
 
     protected override void ChangeStateByInput()
