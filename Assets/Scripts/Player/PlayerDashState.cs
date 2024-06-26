@@ -15,11 +15,18 @@ public class PlayerDashState : PlayerStates
         player.anim.ResetTrigger("DashStop");
         player.normalCol.SetActive(false);
         player.dashCol.SetActive(true);
+        if (player.CheckSlope())
+        {
+            player.dashCol.GetComponent<CapsuleCollider2D>().enabled = true;
+            player.dashCol.GetComponent<BoxCollider2D>().enabled = false;
+        }
     }
     public override void Exit()
     {
         base.Exit();
         player.normalCol.SetActive(true);
+        player.dashCol.GetComponent<CapsuleCollider2D>().enabled = false;
+        player.dashCol.GetComponent<BoxCollider2D>().enabled = true;
         player.dashCol.SetActive(false);
     }
 
@@ -27,7 +34,8 @@ public class PlayerDashState : PlayerStates
     public override void Update()
     {
         base.Update();
-        if(stateDuration > 0.07f && stateDuration < 0.1f && horizontalInput==0)
+        rb.sharedMaterial = player.normalPhysicMat;
+        if (stateDuration > 0.07f && stateDuration < 0.1f && horizontalInput == 0)
         {
             if (!player.CheckCeilling())
                 player.anim.SetTrigger("DashStop");
@@ -36,15 +44,21 @@ public class PlayerDashState : PlayerStates
         }
         else if (stateDuration < 0f)
         {
-            if(horizontalInput == 0)
+            if (horizontalInput == 0)
                 rb.velocity = Vector2.zero;
-            else if(!player.CheckCeilling())
+            else if (!player.CheckCeilling())
                 stateMachine.ChangeState(player.runState);
             else
                 stateMachine.ChangeState(player.crouchState);
-        } else
-            rb.velocity = new Vector2(player.dashSpeed * player.facingDir, 0f);
-        if(!player.CheckGrounded())
+        }
+        else
+        {
+            if (!player.CheckSlope())
+                rb.velocity = new Vector2(player.dashSpeed * player.facingDir, 0f);
+            else
+                rb.velocity = new Vector2(player.dashSpeed * player.facingDir * -player.slopeMoveDir.x, player.dashSpeed * player.facingDir * -player.slopeMoveDir.y);
+        }
+        if (!player.CheckGrounded())
         {
             rb.velocity = Vector2.zero;
             stateMachine.ChangeState(player.fallState);

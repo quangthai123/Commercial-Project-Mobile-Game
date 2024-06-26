@@ -11,12 +11,13 @@ public class PlayerFallState : PlayerAirState
     public override void Start()
     {
         base.Start();
-        //rb.velocity = Vector3.zero;
         player.landingDuration = Time.time;
+        player.canLadder = true;
     }
     public override void Exit()
     {
         base.Exit();
+        player.canLadder = false;
     }
 
 
@@ -32,18 +33,6 @@ public class PlayerFallState : PlayerAirState
             } else
                 stateMachine.ChangeState(player.idleState);
         }
-        //if (player.CheckSlope())
-        //{
-        //    stateMachine.ChangeState(player.idleState);
-        //}
-        //    player.knockFlip = true;
-        //    rb.velocity = Vector2.zero;
-        //    rb.gravityScale = 0f;
-        //}
-        //else
-        //{
-        //    rb.gravityScale = 6f;
-        //}
     }
 
     protected override void ChangeStateByInput()

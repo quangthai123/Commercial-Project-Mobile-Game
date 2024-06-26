@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7733061395865446429}
   - component: {fileID: 1872620063442931292}
   - component: {fileID: 5884851977099207641}
+  - component: {fileID: 2403542600472470388}
   m_Layer: 6
   m_Name: OneWayPlatform1
   m_TagString: Untagged
@@ -130,3 +131,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3, y: 0.40329027}
   m_EdgeRadius: 0
+--- !u!114 &2403542600472470388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3491414542469092230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c01478a794bcf7143a256c4b2c827870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canJumpDown: 0

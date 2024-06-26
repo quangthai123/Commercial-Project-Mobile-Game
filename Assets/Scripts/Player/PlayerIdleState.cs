@@ -17,10 +17,12 @@ public class PlayerIdleState : PlayerOnGroundState
         //    return;
         //}
         base.Start();
+        player.canLadder = true;
     }
     public override void Exit()
     {
         base.Exit();
+        player.canLadder = false;
     }
     public override void Update()
     {

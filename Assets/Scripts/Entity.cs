@@ -44,7 +44,6 @@ public class Entity : MonoBehaviour
     public void Flip()
     {
         if(knockFlip) return;
-        Debug.Log("Flip!!!!");
         transform.Rotate(0f, 180f, 0f);
         facingDir *= -1;
     }

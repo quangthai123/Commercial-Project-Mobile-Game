@@ -22,7 +22,10 @@ public class PlayerEnterCrouchState : PlayerStates
     public override void Update()
     {
         base.Update();
-        rb.velocity = Vector2.zero;
+        if (player.CheckGrounded())
+            rb.velocity = Vector3.zero;
+        else
+            stateMachine.ChangeState(player.fallState);
         if (finishAnim)
             stateMachine.ChangeState(player.crouchState);
     }

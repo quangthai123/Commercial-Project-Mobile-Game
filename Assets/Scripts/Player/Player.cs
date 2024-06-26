@@ -22,6 +22,7 @@ public class Player : Entity
     public PlayerEnterCrouchState enterCrouchState { get; private set; }
     public PlayerExitCrouchState exitCrouchState { get; private set; }
     public PlayerLandingState landingState { get; private set; }
+    public PlayerLadderState ladderState { get; private set; }
     #endregion
 
     [Header("Jump Infor")]
@@ -63,6 +64,9 @@ public class Player : Entity
     [SerializeField] private float slopeCheckDistance;
     [SerializeField] private float jumpOnSlopeCheckDistance;
     private Vector2 slopeNormalAxis;
+    [Header("Ladder Infor")]
+    public bool canLadder = false;
+    public float ladderMoveSpeed;
     // 2.1 ground check distance
 
     private void Awake()
@@ -87,6 +91,7 @@ public class Player : Entity
         enterCrouchState = new PlayerEnterCrouchState(this, stateMachine, "EnterCrouch");
         exitCrouchState = new PlayerExitCrouchState(this, stateMachine, "ExitCrouch");
         landingState = new PlayerLandingState(this, stateMachine, "Landing");
+        ladderState = new PlayerLadderState(this, stateMachine, "Ladder");
     }
 
     protected override void Start()

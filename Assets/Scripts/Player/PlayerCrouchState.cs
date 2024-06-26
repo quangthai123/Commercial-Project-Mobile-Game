@@ -32,7 +32,10 @@ public class PlayerCrouchState : PlayerStates
     public override void Update()
     {
         base.Update();
-        rb.velocity = Vector3.zero;
+        if (player.CheckGrounded())
+            rb.velocity = Vector3.zero;
+        else
+            stateMachine.ChangeState(player.fallState);
         if (horizontalInput != player.facingDir && horizontalInput != 0)
             player.Flip();
         if (!player.CheckCeilling() && !Input.GetKey(KeyCode.S))
