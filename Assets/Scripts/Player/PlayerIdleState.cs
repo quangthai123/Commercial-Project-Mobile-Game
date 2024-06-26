@@ -21,23 +21,19 @@ public class PlayerIdleState : PlayerOnGroundState
     public override void Exit()
     {
         base.Exit();
-        rb.gravityScale = 6f;
     }
     public override void Update()
     {
         base.Update();
-        //if (player.CheckGrounded())
+        if (!player.CheckSlope())
             rb.velocity = Vector2.zero;
-        if (player.CheckSlope())
-        {
-            rb.gravityScale = 0f;
-            player.knockFlip = true;
-        }
         else
-        {
-            rb.gravityScale = 6f;
-            player.knockFlip = false;
-        }
+            rb.velocity = new Vector2(horizontalInput * player.moveSpeed, rb.velocity.y);
+        //else
+        //{
+        //    rb.gravityScale = 6f;
+        //    player.knockFlip = false;
+        //}
     }
     protected override void ChangeStateByInput()
     {

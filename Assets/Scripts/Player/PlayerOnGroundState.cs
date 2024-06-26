@@ -42,7 +42,7 @@ public class PlayerOnGroundState : PlayerStates
         }
         if (Input.GetKeyDown(KeyCode.F))
             stateMachine.ChangeState(player.healState);
-        if (Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKey(KeyCode.S))
             stateMachine.ChangeState(player.enterCrouchState);
     }
 }

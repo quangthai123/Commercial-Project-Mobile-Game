@@ -55,11 +55,15 @@ public class Player : Entity
     public float landingDuration;
     public float allowLandingTime;
     [Header("Slope infor")]
-    public bool onSlopeRight = false;
+    public PhysicsMaterial2D normalPhysicMat;
+    public PhysicsMaterial2D onSlopePhysicMat;
+    public bool onSlope = false;
     public Vector2 slopeMoveDir;
     [SerializeField] private LayerMask whatIsSlopeGround;
     [SerializeField] private float slopeCheckDistance;
+    [SerializeField] private float jumpOnSlopeCheckDistance;
     private Vector2 slopeNormalAxis;
+    // 2.1 ground check distance
 
     private void Awake()
     {
@@ -99,6 +103,20 @@ public class Player : Entity
         //isCeilled = CheckCeilling();
         stateMachine.currentState.Update();
         HandleSlopeMoveDir();
+        onSlope = CheckSlope();
+    }
+    protected override void FlipController()
+    {
+        if(!CheckSlope()) 
+            base.FlipController();
+        else
+        {
+            if (Input.GetAxisRaw("Horizontal") < 0 && facingDir == 1)
+                Flip();
+            if (Input.GetAxisRaw("Horizontal") > 0 && facingDir == -1)
+                Flip();
+        }
+
     }
     public bool CheckCeilling()
     {
@@ -111,6 +129,8 @@ public class Player : Entity
         return Physics2D.Raycast(groundCheckPos1.position, Vector2.down, groundCheckDistance, whatIsGround)
             || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, groundCheckDistance, whatIsGround) || CheckSlope();
     }
+    public bool CheckJumpOnSlope() => Physics2D.Raycast(groundCheckPos1.position, Vector2.down, jumpOnSlopeCheckDistance, whatIsSlopeGround)
+            || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, jumpOnSlopeCheckDistance, whatIsSlopeGround);
     private void HandleSlopeMoveDir()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround);
@@ -118,15 +138,6 @@ public class Player : Entity
         {
             Debug.DrawRay(hit.point, hit.normal, Color.red);
             Debug.DrawRay(hit.point, Vector2.Perpendicular(hit.normal), Color.green);
-            //if(hit.normal.x > 0)
-            //{
-            //    onSlopeRight = false;
-            //    slopeMoveDir = Vector2.Perpendicular(hit.normal).normalized;
-            //} else
-            //{
-            //    onSlopeRight = true;
-            //    slopeMoveDir = -Vector2.Perpendicular(hit.normal).normalized;
-            //}
             slopeMoveDir = Vector2.Perpendicular(hit.normal).normalized;
         }
     }
@@ -137,6 +148,8 @@ public class Player : Entity
     protected override void OnDrawGizmos()
     {
         base.OnDrawGizmos();
+        Gizmos.DrawLine(groundCheckPos1.position, new Vector2(groundCheckPos1.position.x, groundCheckPos1.position.y - jumpOnSlopeCheckDistance));
+        Gizmos.DrawLine(groundCheckPos2.position, new Vector2(groundCheckPos2.position.x, groundCheckPos2.position.y - jumpOnSlopeCheckDistance));
         Gizmos.DrawLine(ceillingCheckPos1.position, new Vector2(ceillingCheckPos1.position.x, ceillingCheckPos1.position.y + ceillingCheckDistance));
         Gizmos.DrawLine(ceillingCheckPos2.position, new Vector2(ceillingCheckPos2.position.x, ceillingCheckPos2.position.y + ceillingCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - slopeCheckDistance));

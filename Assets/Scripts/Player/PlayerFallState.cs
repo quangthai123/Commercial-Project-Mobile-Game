@@ -32,16 +32,18 @@ public class PlayerFallState : PlayerAirState
             } else
                 stateMachine.ChangeState(player.idleState);
         }
-        if (player.CheckSlope())
-        {
-            player.knockFlip = true;
-            rb.velocity = Vector2.zero;
-            rb.gravityScale = 0f;
-        }
-        else
-        {
-            rb.gravityScale = 6f;
-        }
+        //if (player.CheckSlope())
+        //{
+        //    stateMachine.ChangeState(player.idleState);
+        //}
+        //    player.knockFlip = true;
+        //    rb.velocity = Vector2.zero;
+        //    rb.gravityScale = 0f;
+        //}
+        //else
+        //{
+        //    rb.gravityScale = 6f;
+        //}
     }
 
     protected override void ChangeStateByInput()

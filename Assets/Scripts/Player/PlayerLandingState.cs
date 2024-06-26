@@ -24,8 +24,8 @@ public class PlayerLandingState : PlayerStates
         base.Update();
         if (finishAnim)
             stateMachine.ChangeState(player.idleState);
-        rb.velocity = Vector3.zero;
-        rb.gravityScale = 0f;
+        if (!player.CheckSlope())
+            rb.velocity = Vector2.zero;
     }
 
     protected override void ChangeStateByInput()

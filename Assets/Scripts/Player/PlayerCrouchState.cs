@@ -13,11 +13,18 @@ public class PlayerCrouchState : PlayerStates
         base.Start();
         player.normalCol.SetActive(false);
         player.dashCol.SetActive(true);
-    }
+        if (player.CheckSlope())
+        {
+            player.dashCol.GetComponent<CapsuleCollider2D>().enabled = true;
+            player.dashCol.GetComponent<BoxCollider2D>().enabled = false;
+        }
+     }
     public override void Exit()
     {
         base.Exit();
         player.normalCol.SetActive(true);
+        player.dashCol.GetComponent<CapsuleCollider2D>().enabled = false;
+        player.dashCol.GetComponent<BoxCollider2D>().enabled = true;
         player.dashCol.SetActive(false);
     }
 

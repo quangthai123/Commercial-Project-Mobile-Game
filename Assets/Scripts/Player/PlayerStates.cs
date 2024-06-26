@@ -31,7 +31,23 @@ public class PlayerStates
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
         stateDuration -= Time.deltaTime;
+        if (player.CheckSlope())
+        {
+            //rb.velocity = new Vector2(0f, rb.velocity.y);
+            //rb.gravityScale = 0f;
+            if(player.stateMachine.currentState != player.runState)
+            {
+                rb.sharedMaterial = player.onSlopePhysicMat;
+            }
+            MakeEnableSlopeCol(true);
+        }
+        else
+        {
+            rb.sharedMaterial = player.normalPhysicMat;
+            MakeEnableSlopeCol(false);
+        }
     }
+
     public virtual void Exit()
     {
         player.anim.SetBool(animBoolName, false);
@@ -46,5 +62,10 @@ public class PlayerStates
     protected virtual void ChangeStateByInput()
     {
 
+    }
+    protected void MakeEnableSlopeCol(bool _enabled)
+    {
+        player.normalCol.GetComponent<CapsuleCollider2D>().enabled = _enabled; // => slope col
+        player.normalCol.GetComponent<BoxCollider2D>().enabled = !_enabled;
     }
 }

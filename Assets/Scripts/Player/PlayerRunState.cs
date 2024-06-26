@@ -22,15 +22,17 @@ public class PlayerRunState : PlayerOnGroundState
     public override void Update()
     {
         base.Update();
+        rb.sharedMaterial = player.normalPhysicMat;
         if (!player.CheckSlope())
             rb.velocity = new Vector2(player.moveSpeed * horizontalInput, 0f);
         else
         {
-            rb.velocity = new Vector2(player.moveSpeed * horizontalInput * -player.slopeMoveDir.x, player.moveSpeed * horizontalInput * -player.slopeMoveDir.y);
-            if (horizontalInput == 0)
-                player.knockFlip = true;
-            else
-                player.knockFlip = false;
+            if(player.CheckJumpOnSlope())
+                rb.velocity = new Vector2(player.moveSpeed * horizontalInput * -player.slopeMoveDir.x, player.moveSpeed * horizontalInput * -player.slopeMoveDir.y);
+            //if (horizontalInput == 0)
+            //    player.knockFlip = true;
+            //else
+            //    player.knockFlip = false;
         }
     }
 

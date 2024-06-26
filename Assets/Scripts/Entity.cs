@@ -34,11 +34,11 @@ public class Entity : MonoBehaviour
     {
         FlipController();
     }
-    protected void FlipController()
+    protected virtual void FlipController()
     {
         if (rb.velocity.x < -.1f && facingDir == 1)
             Flip();
-        if(rb.velocity.x > .1f && facingDir == -1)
+        if (rb.velocity.x > .1f && facingDir == -1)
             Flip();
     }
     public void Flip()
