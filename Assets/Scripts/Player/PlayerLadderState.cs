@@ -25,12 +25,13 @@ public class PlayerLadderState : PlayerStates
             player.anim.SetBool("LadderMove", false);
             rb.velocity = Vector2.zero;
         }
-        if(verticalInput != 0)
+        if(verticalInput != 0 && stateMachine.currentState != player.jumpState)
         {
             player.anim.SetBool("LadderMove", true);
-            if(player.stateMachine.currentState != player.jumpState)
-                rb.velocity = new Vector2(0f, player.ladderMoveSpeed * verticalInput);
+            rb.velocity = new Vector2(0f, player.ladderMoveSpeed * verticalInput);
         }
+        if (!player.CheckGrounded() && !player.canLadder)
+            stateMachine.ChangeState(player.fallState);
     }
 
     protected override void ChangeStateByInput()

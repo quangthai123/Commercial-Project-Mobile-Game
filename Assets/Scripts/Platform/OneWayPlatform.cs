@@ -15,7 +15,7 @@ public class OneWayPlatform : MonoBehaviour
     }
     private void Update()
     {
-        if (player.position.y >= transform.position.y + 2.1f && !canJumpDown)
+        if (player.position.y >= transform.position.y + 2.1f && !canJumpDown && Player.Instance.stateMachine.currentState != Player.Instance.ladderState)
         {
             boxCol.enabled = true;
         } else if(player.position.y < transform.position.y + 2.1f)
@@ -23,6 +23,8 @@ public class OneWayPlatform : MonoBehaviour
             boxCol.enabled = false;
             canJumpDown = false;
         }
+        if(Player.Instance.canLadder && Input.GetAxisRaw("Vertical") != 0f)
+            boxCol.enabled = false;
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -34,7 +36,7 @@ public class OneWayPlatform : MonoBehaviour
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Player" && Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.Space))
+        if (collision.gameObject.tag == "Player" && Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.Space))
         {
             Debug.Log("Jump down!");
             canJumpDown = true;

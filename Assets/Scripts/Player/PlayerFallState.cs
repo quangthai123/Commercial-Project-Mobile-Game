@@ -12,12 +12,10 @@ public class PlayerFallState : PlayerAirState
     {
         base.Start();
         player.landingDuration = Time.time;
-        player.canLadder = true;
     }
     public override void Exit()
     {
         base.Exit();
-        player.canLadder = false;
     }
 
 
@@ -33,6 +31,8 @@ public class PlayerFallState : PlayerAirState
             } else
                 stateMachine.ChangeState(player.idleState);
         }
+        if(player.CheckLedge() && !player.canLadder && player.canGrabLedge) 
+            stateMachine.ChangeState(player.ledgeGrabState);
     }
 
     protected override void ChangeStateByInput()

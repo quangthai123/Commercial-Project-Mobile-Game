@@ -11,18 +11,11 @@ public class PlayerIdleState : PlayerOnGroundState
 
     public override void Start()
     {
-        //if (player.CheckCeilling())
-        //{
-        //    stateMachine.ChangeState(player.crouchState);
-        //    return;
-        //}
         base.Start();
-        player.canLadder = true;
     }
     public override void Exit()
     {
         base.Exit();
-        player.canLadder = false;
     }
     public override void Update()
     {
@@ -31,11 +24,6 @@ public class PlayerIdleState : PlayerOnGroundState
             rb.velocity = Vector2.zero;
         else
             rb.velocity = new Vector2(horizontalInput * player.moveSpeed, rb.velocity.y);
-        //else
-        //{
-        //    rb.gravityScale = 6f;
-        //    player.knockFlip = false;
-        //}
     }
     protected override void ChangeStateByInput()
     {

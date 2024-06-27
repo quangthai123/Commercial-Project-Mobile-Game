@@ -27,4 +27,20 @@ public class PlayerAnimationController : MonoBehaviour
     {
         Player.Instance.isShielding = false;
     }
+    private void FirstMovePlayerWhileLedgeClimb()
+    {
+        Player.Instance.transform.position = new Vector2(Player.Instance.transform.position.x - Player.Instance.facingDir * 0.2f, Player.Instance.transform.position.y + 0.5f);
+    }
+    private void SecondMovePlayerWhileLedgeClimb()
+    {
+        Player.Instance.transform.position = new Vector2(Player.Instance.transform.position.x + Player.Instance.facingDir * 0.2f, Player.Instance.transform.position.y + 0.6f);
+    }
+    private void ThirdMovePlayerWhileLedgeClimb()
+    {
+        Player.Instance.transform.position = new Vector2(Player.Instance.transform.position.x + Player.Instance.facingDir * 0.6f, Player.Instance.transform.position.y + 0.7f);
+    }
+    private void LastMovePlayerWhileLedgeClimb()
+    {
+        Player.Instance.transform.position = new Vector2(Player.Instance.transform.position.x + Player.Instance.facingDir * 1.75f, Player.Instance.transform.position.y + 1.8f);
+    }
 }

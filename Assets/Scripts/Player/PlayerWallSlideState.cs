@@ -16,6 +16,7 @@ public class PlayerWallSlideState : PlayerStates
         player.doubleJumped = false;
         player.attackState.airAttackCounter = 1;
         player.airDashState.airDashed = false;
+        player.canGrabLedge = true;
         rb.velocity = Vector2.zero;
     }
     public override void Exit()

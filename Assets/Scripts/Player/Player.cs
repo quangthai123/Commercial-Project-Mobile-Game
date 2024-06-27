@@ -23,6 +23,8 @@ public class Player : Entity
     public PlayerExitCrouchState exitCrouchState { get; private set; }
     public PlayerLandingState landingState { get; private set; }
     public PlayerLadderState ladderState { get; private set; }
+    public PlayerLedgeGrabState ledgeGrabState { get; private set; }
+    public PlayerLedgeClimbState ledgeClimbState { get; private set; }
     #endregion
 
     [Header("Jump Infor")]
@@ -44,11 +46,12 @@ public class Player : Entity
     public float dashSpeed;
     public float dashDuration;
     public float dashCooldown;
+    [SerializeField] private float spawnDashShadowCooldown;
+    [SerializeField] private bool startDashShadowCoroutine = false;
     [Header("Ceilling Collision Infor")]
     [SerializeField] private Transform ceillingCheckPos1;
     [SerializeField] private Transform ceillingCheckPos2;
     [SerializeField] private float ceillingCheckDistance;
-    //public bool isCeilled;
     [HideInInspector] public GameObject normalCol;
     [HideInInspector] public GameObject dashCol;
     [HideInInspector] public float dashTimer;
@@ -60,6 +63,7 @@ public class Player : Entity
     public PhysicsMaterial2D onSlopePhysicMat;
     public bool onSlope = false;
     public Vector2 slopeMoveDir;
+    [SerializeField] private float slopeAngleWithUpAxis;
     [SerializeField] private LayerMask whatIsSlopeGround;
     [SerializeField] private float slopeCheckDistance;
     [SerializeField] private float jumpOnSlopeCheckDistance;
@@ -67,10 +71,15 @@ public class Player : Entity
     [Header("Ladder Infor")]
     public bool canLadder = false;
     public float ladderMoveSpeed;
-    // 2.1 ground check distance
-
+    [Header("Ledge Infor")]
+    public Transform ledgeCheckPos;
+    public Transform wallCheckPosForEdge;
+    [SerializeField] private float ledgeCheckRadius;
+    [HideInInspector] public bool canGrabLedge = true;
+    private Coroutine dashShadowCoroutine;
     private void Awake()
     {
+        //Time.timeScale = 0.1f;
         if (Instance != null)
             Destroy(gameObject);
         else
@@ -92,6 +101,8 @@ public class Player : Entity
         exitCrouchState = new PlayerExitCrouchState(this, stateMachine, "ExitCrouch");
         landingState = new PlayerLandingState(this, stateMachine, "Landing");
         ladderState = new PlayerLadderState(this, stateMachine, "Ladder");
+        ledgeGrabState = new PlayerLedgeGrabState(this, stateMachine, "LedgeGrab");
+        ledgeClimbState = new PlayerLedgeClimbState(this, stateMachine, "LedgeClimb");
     }
 
     protected override void Start()
@@ -109,6 +120,18 @@ public class Player : Entity
         stateMachine.currentState.Update();
         HandleSlopeMoveDir();
         onSlope = CheckSlope();
+        if((stateMachine.currentState == dashState || stateMachine.currentState == airDashState) && !startDashShadowCoroutine)
+        {
+            Debug.Log("Start Coroutine");
+            startDashShadowCoroutine = true;
+            dashShadowCoroutine = StartCoroutine(SpawnDashShadow());
+        }
+        else if (stateMachine.currentState != dashState && stateMachine.currentState != airDashState && dashShadowCoroutine != null)
+        {
+            Debug.Log("Stop Coroutine");
+            startDashShadowCoroutine = false;
+            StopCoroutine(dashShadowCoroutine);
+        }
     }
     protected override void FlipController()
     {
@@ -123,12 +146,25 @@ public class Player : Entity
         }
 
     }
+    private IEnumerator SpawnDashShadow()
+    {
+        while(startDashShadowCoroutine)
+        {
+            Spawner.instance.Spawn(transform.position, Quaternion.identity);
+            yield return new WaitForSeconds(spawnDashShadowCooldown);
+        }
+    }
+    public bool CheckLedge() => Physics2D.OverlapCircle(ledgeCheckPos.position, ledgeCheckRadius, whatIsGround) && !CheckLedgeGround();
+    public bool CheckLedgeGround() => Physics2D.Raycast(wallCheckPosForEdge.position, Vector2.right * facingDir, wallCheckDistance + 1f, whatIsGround);
     public bool CheckCeilling()
     {
         return Physics2D.Raycast(ceillingCheckPos1.position, Vector2.up, ceillingCheckDistance, whatIsGround) || 
             Physics2D.Raycast(ceillingCheckPos2.position, Vector2.up, ceillingCheckDistance, whatIsGround);
     }
-    public bool CheckSlope() => Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround);
+    public bool CheckSlope()
+    {
+        return Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround) && slopeAngleWithUpAxis < 30f;
+    }
     public override bool CheckGrounded()
     {
         return Physics2D.Raycast(groundCheckPos1.position, Vector2.down, groundCheckDistance, whatIsGround)
@@ -141,6 +177,7 @@ public class Player : Entity
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround);
         if(hit)
         {
+            slopeAngleWithUpAxis = Vector2.Angle(Vector2.up, hit.normal);
             Debug.DrawRay(hit.point, hit.normal, Color.red);
             Debug.DrawRay(hit.point, Vector2.Perpendicular(hit.normal), Color.green);
             slopeMoveDir = Vector2.Perpendicular(hit.normal).normalized;
@@ -158,5 +195,28 @@ public class Player : Entity
         Gizmos.DrawLine(ceillingCheckPos1.position, new Vector2(ceillingCheckPos1.position.x, ceillingCheckPos1.position.y + ceillingCheckDistance));
         Gizmos.DrawLine(ceillingCheckPos2.position, new Vector2(ceillingCheckPos2.position.x, ceillingCheckPos2.position.y + ceillingCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - slopeCheckDistance));
+        Gizmos.DrawWireSphere(ledgeCheckPos.position, ledgeCheckRadius);
+        Gizmos.DrawLine(wallCheckPosForEdge.position, new Vector2(wallCheckPosForEdge.position.x + facingDir * (wallCheckDistance + 1f), wallCheckPosForEdge.position.y));
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag == "Ladder")
+        {
+            canLadder = true;
+        }
+    }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Ladder")
+        {
+            canLadder = true;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Ladder")
+        {
+            canLadder = false;
+        }
     }
 }

@@ -13,6 +13,7 @@ public class PlayerOnGroundState : PlayerStates
         player.doubleJumped = false;
         player.attackState.airAttackCounter = 1;
         player.airDashState.airDashed = false;
+        player.canGrabLedge = true;
     }
     public override void Exit()
     {
@@ -21,10 +22,8 @@ public class PlayerOnGroundState : PlayerStates
     public override void Update()
     {
         base.Update();
-        if (!player.CheckGrounded())
+        if (!player.CheckGrounded() && !player.canLadder)
             stateMachine.ChangeState(player.fallState);
-        //if (player.CheckCeilling())
-        //    stateMachine.ChangeState(player.crouchState);
     }
     protected override void ChangeStateByInput()
     {
@@ -42,7 +41,7 @@ public class PlayerOnGroundState : PlayerStates
         }
         if (Input.GetKeyDown(KeyCode.F))
             stateMachine.ChangeState(player.healState);
-        if (Input.GetKey(KeyCode.S))
+        if (Input.GetKey(KeyCode.S) && !player.canLadder)
             stateMachine.ChangeState(player.enterCrouchState);
     }
 }

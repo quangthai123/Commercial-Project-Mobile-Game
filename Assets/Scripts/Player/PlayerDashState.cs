@@ -20,6 +20,7 @@ public class PlayerDashState : PlayerStates
             player.dashCol.GetComponent<CapsuleCollider2D>().enabled = true;
             player.dashCol.GetComponent<BoxCollider2D>().enabled = false;
         }
+        //Spawner.instance.Spawn(player.transform.position, Quaternion.identity);
     }
     public override void Exit()
     {
