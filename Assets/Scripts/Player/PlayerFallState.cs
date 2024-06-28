@@ -29,7 +29,11 @@ public class PlayerFallState : PlayerAirState
             {
                 stateMachine.ChangeState(player.landingState);
             } else
+            {
+                if(Time.time - player.landingDuration >= .2f && !player.CheckSlope())
+                    PlayerEffectSpawner.instance.Spawn("lightGroundedFx", player.centerEffectPos.position, Quaternion.identity);
                 stateMachine.ChangeState(player.idleState);
+            }
         }
         if(player.CheckLedge() && !player.canLadder && player.canGrabLedge) 
             stateMachine.ChangeState(player.ledgeGrabState);

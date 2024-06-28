@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class PlayerAnimationController : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private Player player;
     void Start()
     {
-        
+        player = Player.Instance;
     }
 
     // Update is called once per frame
@@ -42,5 +42,10 @@ public class PlayerAnimationController : MonoBehaviour
     private void LastMovePlayerWhileLedgeClimb()
     {
         Player.Instance.transform.position = new Vector2(Player.Instance.transform.position.x + Player.Instance.facingDir * 1.75f, Player.Instance.transform.position.y + 1.8f);
+    }
+    private void SpawnRunEffect()
+    {
+        if(!player.CheckSlope())
+            PlayerEffectSpawner.instance.Spawn("runFx", Player.Instance.leftEffectPos.position, Quaternion.identity);
     }
 }

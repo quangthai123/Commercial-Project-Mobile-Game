@@ -18,6 +18,16 @@ public class PlayerWallJumpState : PlayerAirState
         //player.knockFlip = true;
         rb.velocity = new Vector2(player.wallJumpForce.x * player.facingDir, player.wallJumpForce.y);
         wallJumped = false;
+        //if(player.facingDir == 1)
+        //{
+        //    Debug.Log("Wall Jump Fx");
+        //    PlayerEffectSpawner.instance.Spawn("startJumpFx", player.centerEffectPos.position, Quaternion.Euler(0f, -90f, 0f));
+        //}
+        //else
+        //{
+        //    Debug.Log("Wall Jump Fx");
+        //    PlayerEffectSpawner.instance.Spawn("startJumpFx", player.centerEffectPos.position, Quaternion.Euler(0f, 90f, 0f));
+        //}
     }
     public override void Exit()
     {

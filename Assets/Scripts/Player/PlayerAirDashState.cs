@@ -15,6 +15,7 @@ public class PlayerAirDashState : PlayerStates
         rb.gravityScale = 0f;
         stateDuration = player.dashDuration;
         //Spawner.instance.Spawn(player.transform.position, Quaternion.identity);
+        PlayerEffectSpawner.instance.Spawn("airDashFx", player.leftEffectPos.position + new Vector3(0f, 1.2f, 0f), Quaternion.identity);
     }
     public override void Exit()
     {

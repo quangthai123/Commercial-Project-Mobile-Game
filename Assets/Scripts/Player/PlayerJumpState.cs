@@ -11,6 +11,10 @@ public class PlayerJumpState : PlayerAirState
     {
         base.Start();
         stateDuration = player.jumpDuration;
+        if(!player.canLadder && player.CheckGrounded())
+            PlayerEffectSpawner.instance.Spawn("startJumpFx", player.centerEffectPos.position, Quaternion.identity);
+        else
+            PlayerEffectSpawner.instance.Spawn("doubleJumpFx", player.centerEffectPos.position, Quaternion.identity);
     }
     public override void Exit()
     {

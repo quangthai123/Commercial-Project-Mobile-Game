@@ -26,7 +26,8 @@ public class Player : Entity
     public PlayerLedgeGrabState ledgeGrabState { get; private set; }
     public PlayerLedgeClimbState ledgeClimbState { get; private set; }
     #endregion
-
+    [SerializeField] protected Transform groundCheckPos1;
+    [SerializeField] protected Transform groundCheckPos2;
     [Header("Jump Infor")]
     public float jumpDuration;
     public float jumpForce;
@@ -77,6 +78,10 @@ public class Player : Entity
     [SerializeField] private float ledgeCheckRadius;
     [HideInInspector] public bool canGrabLedge = true;
     private Coroutine dashShadowCoroutine;
+    [Header("Effect Infor")]
+    public Transform leftEffectPos;
+    public Transform rightEffectPos;
+    public Transform centerEffectPos;
     private void Awake()
     {
         //Time.timeScale = 0.1f;
@@ -150,7 +155,7 @@ public class Player : Entity
     {
         while(startDashShadowCoroutine)
         {
-            Spawner.instance.Spawn(transform.position, Quaternion.identity);
+            PlayerEffectSpawner.instance.Spawn("dashShadowFx", transform.position, Quaternion.identity);
             yield return new WaitForSeconds(spawnDashShadowCooldown);
         }
     }
@@ -165,7 +170,7 @@ public class Player : Entity
     {
         return Physics2D.Raycast(transform.position, Vector2.down, slopeCheckDistance, whatIsSlopeGround) && slopeAngleWithUpAxis < 30f;
     }
-    public override bool CheckGrounded()
+    public bool CheckGrounded()
     {
         return Physics2D.Raycast(groundCheckPos1.position, Vector2.down, groundCheckDistance, whatIsGround)
             || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, groundCheckDistance, whatIsGround) || CheckSlope();
@@ -197,6 +202,8 @@ public class Player : Entity
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - slopeCheckDistance));
         Gizmos.DrawWireSphere(ledgeCheckPos.position, ledgeCheckRadius);
         Gizmos.DrawLine(wallCheckPosForEdge.position, new Vector2(wallCheckPosForEdge.position.x + facingDir * (wallCheckDistance + 1f), wallCheckPosForEdge.position.y));
+        Gizmos.DrawLine(groundCheckPos1.position, new Vector2(groundCheckPos1.position.x, groundCheckPos1.position.y - groundCheckDistance));
+        Gizmos.DrawLine(groundCheckPos2.position, new Vector2(groundCheckPos2.position.x, groundCheckPos2.position.y - groundCheckDistance));
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

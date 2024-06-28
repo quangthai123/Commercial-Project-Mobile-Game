@@ -20,7 +20,12 @@ public class PlayerDashState : PlayerStates
             player.dashCol.GetComponent<CapsuleCollider2D>().enabled = true;
             player.dashCol.GetComponent<BoxCollider2D>().enabled = false;
         }
-        //Spawner.instance.Spawn(player.transform.position, Quaternion.identity);
+        //if (player.facingDir == 1)
+        //{
+        if(!player.CheckSlope()) 
+            PlayerEffectSpawner.instance.Spawn("endDashFx", player.leftEffectPos.position, Quaternion.identity);
+        //} else
+        //    PlayerEffectSpawner.instance.Spawn("startDashFx", player.rightEffectPos.position, Quaternion.identity);
     }
     public override void Exit()
     {
@@ -29,6 +34,14 @@ public class PlayerDashState : PlayerStates
         player.dashCol.GetComponent<CapsuleCollider2D>().enabled = false;
         player.dashCol.GetComponent<BoxCollider2D>().enabled = true;
         player.dashCol.SetActive(false);
+        //if(player.facingDir == 1)
+        //{
+        if (!player.CheckSlope() && player.CheckGrounded())
+            PlayerEffectSpawner.instance.Spawn("startDashFx", player.rightEffectPos.position - player.facingDir * new Vector3(.3f, 0f, 0f), Quaternion.identity);
+        //} else
+        //{
+        //    PlayerEffectSpawner.instance.Spawn("endDashFx", player.leftEffectPos.position, Quaternion.identity);
+        //}
     }
 
 

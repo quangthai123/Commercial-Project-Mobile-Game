@@ -11,7 +11,17 @@ public class PlayerLandingState : PlayerStates
     public override void Start()
     {
         base.Start();
-
+        if(player.facingDir == 1)
+        {
+            PlayerEffectSpawner.instance.Spawn("groundedLeftFx", player.leftEffectPos.position, Quaternion.identity);
+            PlayerEffectSpawner.instance.Spawn("groundedRightFx", player.rightEffectPos.position, Quaternion.identity);
+        }
+        else
+        {
+            PlayerEffectSpawner.instance.Spawn("groundedLeftFx", player.rightEffectPos.position, Quaternion.identity);
+            PlayerEffectSpawner.instance.Spawn("groundedRightFx", player.leftEffectPos.position, Quaternion.identity);
+        }
+        PlayerEffectSpawner.instance.Spawn("lightGroundedFx", player.centerEffectPos.position, Quaternion.identity);
     }
     public override void Exit()
     {

@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Spawner : MonoBehaviour
+public abstract class Spawner : MonoBehaviour
 {
-    public static Spawner instance;
-    [SerializeField] private List<Transform> objPrefabs;
-    [SerializeField] private List<Transform> poolObjList;
-    private Transform holder;
-    private void Reset()
+    
+    [SerializeField] protected List<Transform> objPrefabs;
+    [SerializeField] protected List<Transform> poolObjList;
+    protected Transform holder;
+    protected void Reset()
     {
         holder = transform.Find("Holder");
         Transform prefabs = transform.Find("Prefab");
@@ -18,12 +18,8 @@ public class Spawner : MonoBehaviour
             prefab.gameObject.SetActive(false);
         }
     }
-    private void Awake()
+    protected virtual void Awake()
     {
-        if (instance != null)
-            Destroy(gameObject);
-        else 
-            instance = this;
         holder = transform.Find("Holder");
         Transform prefabs = transform.Find("Prefab");
         if (objPrefabs.Count > 0) return;
@@ -33,29 +29,40 @@ public class Spawner : MonoBehaviour
             prefab.gameObject.SetActive(false);
         }
     }
-    //private Transform FindAnObjInPoolWithName(string name)
-    //{
-    //    foreach (Transform obj in poobObjList)
-    //    {
-    //        if(obj.name == name+"(Clone)")
-    //        {
-    //            return obj;
-    //        }
-    //    }
-    //    if(objnull;
-    //}
-
-    public void Spawn(Vector2 pos, Quaternion rot)
+    protected Transform FindAnObjInPoolWithName(string name)
     {
-        Transform obj;
-        if (poolObjList.Count > 0)
+        foreach (Transform obj in poolObjList)
         {
-            obj = poolObjList[0];
-            poolObjList.RemoveAt(0);
-            Debug.Log("Reused");
+            if (obj.name == name + "(Clone)")
+            {
+                return obj;
+            }
+        }
+        return null;
+    }
+
+    public void Spawn(string name, Vector2 pos, Quaternion rot)
+    {
+        Transform obj = FindAnObjInPoolWithName(name);
+        if(obj != null)
+        {
+            poolObjList.Remove(obj);
         } else
         {
-            obj = Instantiate(objPrefabs[0]);
+            for(int i=0; i < objPrefabs.Count; i++) 
+            {
+                if (objPrefabs[i].name == name)
+                {
+                    obj = Instantiate(objPrefabs[i]);
+                    Debug.Log("Instantiate New Obj!");
+                    break;
+                }
+            }
+            if (obj == null)
+            {
+                Debug.LogWarning("Can not found " + name + " to spawn!");
+                return;
+            }
         }
         obj.parent = holder;
         obj.SetPositionAndRotation(pos, rot);

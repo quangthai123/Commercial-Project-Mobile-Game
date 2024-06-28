@@ -13,6 +13,7 @@ public class PlayerLedgeGrabState : PlayerStates
         base.Start();
         //player.transform.position = player.ledgeCheckPos.position;
         rb.gravityScale = 0f;
+        rb.velocity = Vector3.zero;
     }
 
     public override void Exit()

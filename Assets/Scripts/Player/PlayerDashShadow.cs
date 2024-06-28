@@ -22,7 +22,7 @@ public class PlayerDashShadow : MonoBehaviour
         if(sr.color.a <= 0)
         {
             //despawn
-            Spawner.instance.Despawn(transform);
+            PlayerEffectSpawner.instance.Despawn(transform);
         } 
     }
     private IEnumerator LosingAlphaColor()
