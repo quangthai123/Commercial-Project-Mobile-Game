@@ -15,7 +15,8 @@ public class PlayerRunState : PlayerOnGroundState
     public override void Exit()
     {
         base.Exit();
-        rb.velocity = Vector3.zero;
+        if(!player.isKnocked)
+            rb.velocity = Vector3.zero;
     }
 
 

@@ -25,6 +25,10 @@ public class Player : Entity
     public PlayerLadderState ladderState { get; private set; }
     public PlayerLedgeGrabState ledgeGrabState { get; private set; }
     public PlayerLedgeClimbState ledgeClimbState { get; private set; }
+    public PlayerHurtState hurtState { get; private set; }
+    public PlayerStrongHurtState strongHurtState { get; private set; }
+    public PlayerKnockoutState knockoutState { get; private set; }
+    public PlayerParryState parryState { get; private set; }
     #endregion
     [SerializeField] protected Transform groundCheckPos1;
     [SerializeField] protected Transform groundCheckPos2;
@@ -82,6 +86,21 @@ public class Player : Entity
     public Transform leftEffectPos;
     public Transform rightEffectPos;
     public Transform centerEffectPos;
+
+    [Header("Knockback")]
+    public Vector2 currentKnockbackDir;
+    [SerializeField] protected float currentKnockbackDuration;
+    [SerializeField] protected List<Vector2> knockbackDirs;
+    [SerializeField] protected List<float> knockbackDurations;
+    public bool isKnocked;
+    public float knockOutDuration;
+    private EntityFx entityFx;
+
+    [Header("Parry Infor")]
+    public float parryDuration;
+    public float strongParryDuration;
+    public float pushBackSpeed;
+    [HideInInspector] public bool isStrongStrike;
     private void Awake()
     {
         //Time.timeScale = 0.1f;
@@ -108,6 +127,10 @@ public class Player : Entity
         ladderState = new PlayerLadderState(this, stateMachine, "Ladder");
         ledgeGrabState = new PlayerLedgeGrabState(this, stateMachine, "LedgeGrab");
         ledgeClimbState = new PlayerLedgeClimbState(this, stateMachine, "LedgeClimb");
+        hurtState = new PlayerHurtState(this, stateMachine, "Hurt");
+        strongHurtState = new PlayerStrongHurtState(this, stateMachine, "StrongHurt");
+        knockoutState = new PlayerKnockoutState(this, stateMachine, "Knockout");
+        parryState = new PlayerParryState(this, stateMachine, "Parry");
     }
 
     protected override void Start()
@@ -117,11 +140,11 @@ public class Player : Entity
         facingDir = 1;
         dashCol = transform.Find("Dash Col No Trigger").gameObject;
         normalCol = transform.Find("Col No Trigger").gameObject;
+        entityFx = GetComponent<EntityFx>();
     }
     protected override void Update()
     {
         base.Update();
-        //isCeilled = CheckCeilling();
         stateMachine.currentState.Update();
         HandleSlopeMoveDir();
         onSlope = CheckSlope();
@@ -140,6 +163,8 @@ public class Player : Entity
     }
     protected override void FlipController()
     {
+        if (isKnocked)
+            return;
         if(!CheckSlope()) 
             base.FlipController();
         else
@@ -175,6 +200,7 @@ public class Player : Entity
         return Physics2D.Raycast(groundCheckPos1.position, Vector2.down, groundCheckDistance, whatIsGround)
             || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, groundCheckDistance, whatIsGround) || CheckSlope();
     }
+    public bool CheckGroundedWhileHurtOrParry() => Physics2D.Raycast(new Vector2(groundCheckPos1.position.x - facingDir * .5f, groundCheckPos1.position.y), Vector2.down, slopeCheckDistance + 2f, whatIsGround);
     public bool CheckJumpOnSlope() => Physics2D.Raycast(groundCheckPos1.position, Vector2.down, jumpOnSlopeCheckDistance, whatIsSlopeGround)
             || Physics2D.Raycast(groundCheckPos2.position, Vector2.down, jumpOnSlopeCheckDistance, whatIsSlopeGround);
     private void HandleSlopeMoveDir()
@@ -205,11 +231,87 @@ public class Player : Entity
         Gizmos.DrawLine(groundCheckPos1.position, new Vector2(groundCheckPos1.position.x, groundCheckPos1.position.y - groundCheckDistance));
         Gizmos.DrawLine(groundCheckPos2.position, new Vector2(groundCheckPos2.position.x, groundCheckPos2.position.y - groundCheckDistance));
     }
+    public virtual void GetDamage(Transform opponentTransform, int attackWeight)
+    {
+        if (isKnocked)
+            return;
+        isKnocked = true;
+        if(isShielding && ((opponentTransform.position.x < transform.position.x && facingDir == -1) || 
+            (opponentTransform.position.x > transform.position.x && facingDir == 1)))
+        {
+            if(attackWeight == 1)
+            {
+                currentKnockbackDir = knockbackDirs[3];
+                currentKnockbackDuration = knockbackDurations[3];
+                isStrongStrike = false;
+            } else if(attackWeight == 2)
+            {
+                currentKnockbackDir = knockbackDirs[4];
+                currentKnockbackDuration = knockbackDurations[4];
+                isStrongStrike = true;
+            }
+            rb.velocity = new Vector2(currentKnockbackDir.x * -facingDir, currentKnockbackDir.y);
+            stateMachine.ChangeState(parryState);
+            return;
+        }
+        HitKnockback(opponentTransform, attackWeight);
+        entityFx.StartCoroutine("FlashFX");
+        Debug.Log(gameObject.name + " was damaged!");
+        if (!CheckGrounded() && attackWeight == 0)
+        {
+            isKnocked = false;
+            return;
+        }
+        if(attackWeight==0)
+            stateMachine.ChangeState(hurtState);
+        else
+            stateMachine.ChangeState(strongHurtState);
+    }
+    protected virtual void HitKnockback(Transform opponentTransform, int attackWeight)
+    {
+        if ((opponentTransform.position.x > transform.position.x && facingDir == -1) || (opponentTransform.position.x < transform.position.x && facingDir == 1))
+            Flip();
+        StartCoroutine(Knockback(attackWeight));
+    }
+    protected virtual IEnumerator Knockback(int attackWeight)
+    {
+        if (attackWeight == 0)
+        {
+            if (!CheckGrounded())
+                yield break;
+            currentKnockbackDir = knockbackDirs[0];
+            currentKnockbackDuration = knockbackDurations[0];
+        }
+        else if (attackWeight == 1)
+        {
+            currentKnockbackDir = knockbackDirs[1];
+            currentKnockbackDuration = knockbackDurations[1];
+        }
+        else
+        {
+            currentKnockbackDir = knockbackDirs[2];
+            currentKnockbackDuration = knockbackDurations[2];
+        }
+        if (attackWeight == 0 && !CheckGroundedWhileHurtOrParry())
+            rb.velocity = new Vector2(0f, currentKnockbackDir.y);
+        else 
+            rb.velocity = new Vector2(currentKnockbackDir.x * -facingDir, currentKnockbackDir.y);
+        yield return new WaitForSeconds(currentKnockbackDuration);
+        if (attackWeight == 0)
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Ladder")
+        if (collision.gameObject.tag == "Ladder")
         {
             canLadder = true;
+        }
+        if (collision.gameObject.layer == LayerMask.NameToLayer("CanDamagePlayer"))
+        {
+            if(stateMachine.currentState != dashState && stateMachine.currentState != airDashState)
+            {
+                GetDamage(collision.transform, 1);
+            }
         }
     }
     private void OnTriggerStay2D(Collider2D collision)

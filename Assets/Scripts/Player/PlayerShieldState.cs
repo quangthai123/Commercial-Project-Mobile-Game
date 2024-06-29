@@ -17,6 +17,7 @@ public class PlayerShieldState : PlayerStates
     {
         base.Exit();
         player.anim.ResetTrigger("FinishShield");
+        player.isShielding = false;
     }
 
 
