@@ -74,5 +74,7 @@ public class PlayerAttackState : PlayerStates
         base.ChangeStateByInput();
         if (Input.GetKeyDown(KeyCode.LeftShift))
             stateMachine.ChangeState(player.dashState);
+        if (Input.GetKeyDown(KeyCode.J))
+            stateMachine.ChangeState(player.shieldState);
     }
 }

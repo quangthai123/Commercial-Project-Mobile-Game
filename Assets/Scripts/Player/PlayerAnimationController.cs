@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerAnimationController : MonoBehaviour
 {
     private Player player;
+    public Transform currentEnemyTarget;
     void Start()
     {
         player = Player.Instance;
@@ -47,5 +48,21 @@ public class PlayerAnimationController : MonoBehaviour
     {
         if(!player.CheckSlope())
             PlayerEffectSpawner.instance.Spawn("runFx", Player.Instance.leftEffectPos.position, Quaternion.identity);
+    }
+    private void StartHealEffect()
+    {
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.healEffect, Player.Instance.centerEffectPos.position, Quaternion.identity);
+    }
+    public void CounterAttackCurrentEnemyTarget()
+    {
+        if(currentEnemyTarget != null)
+        {
+            currentEnemyTarget.GetComponentInParent<Enemy>().canBeHitByCounterAttack = true;
+        }
+        currentEnemyTarget = null;
+    }
+    public void AttackTrigger(int attackWeight)
+    {
+        player.DoDamageEnemy(attackWeight);
     }
 }

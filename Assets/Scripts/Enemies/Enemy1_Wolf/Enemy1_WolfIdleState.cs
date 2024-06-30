@@ -13,18 +13,27 @@ public class Enemy1_WolfIdleState : EnemyStates
     public override void Start()
     {
         base.Start();
-        float rdTime = Random.Range(enemy.actionMinTime, enemy.actionMaxTime);
-        stateDuration = rdTime;
+        if (!enemy.DetectedPlayer())
+        {
+            float rdTime = Random.Range(enemy.actionMinTime, enemy.actionMaxTime);
+            stateDuration = rdTime;
+        }
+        else if (enemy.CheckOpponentInAttackRange())
+            stateDuration = enemy.attackCooldown;
         rb.velocity = Vector3.zero;
     }
     public override void Update()
     {
         base.Update();
         rb.velocity = Vector3.zero;
-        if(stateDuration < 0f)
-            stateMachine.ChangeState(enemy.runState);
-        if (enemy.DetectedPlayer())
+        if (!enemy.CheckOpponentInAttackRange())
+        {
+            if (stateDuration < 0f || enemy.DetectedPlayer())
+                stateMachine.ChangeState(enemy.runState);
+        }
+        else if(stateDuration < 0f)
             stateMachine.ChangeState(enemy.attackState);
+
     }
     public override void Exit()
     {

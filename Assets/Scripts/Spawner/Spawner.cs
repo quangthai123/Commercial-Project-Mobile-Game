@@ -8,6 +8,7 @@ public abstract class Spawner : MonoBehaviour
     [SerializeField] protected List<Transform> objPrefabs;
     [SerializeField] protected List<Transform> poolObjList;
     protected Transform holder;
+    protected Transform obj;
     protected void Reset()
     {
         holder = transform.Find("Holder");
@@ -41,9 +42,9 @@ public abstract class Spawner : MonoBehaviour
         return null;
     }
 
-    public void Spawn(string name, Vector2 pos, Quaternion rot)
+    public virtual Transform Spawn(string name, Vector2 pos, Quaternion rot)
     {
-        Transform obj = FindAnObjInPoolWithName(name);
+        obj = FindAnObjInPoolWithName(name);
         if(obj != null)
         {
             poolObjList.Remove(obj);
@@ -61,12 +62,13 @@ public abstract class Spawner : MonoBehaviour
             if (obj == null)
             {
                 Debug.LogWarning("Can not found " + name + " to spawn!");
-                return;
+                return null;
             }
         }
         obj.parent = holder;
         obj.SetPositionAndRotation(pos, rot);
-        obj.gameObject.SetActive(true);
+        return obj;
+        //obj.gameObject.SetActive(true);
     }
     public void Despawn(Transform obj)
     {

@@ -16,15 +16,15 @@ public class PlayerAirDashState : PlayerStates
         stateDuration = player.dashDuration;
         //Spawner.instance.Spawn(player.transform.position, Quaternion.identity);
         PlayerEffectSpawner.instance.Spawn("airDashFx", player.leftEffectPos.position + new Vector3(0f, 1.2f, 0f), Quaternion.identity);
+        player.isKnocked = true;
     }
     public override void Exit()
     {
         base.Exit();
         rb.gravityScale = 6f;
         airDashed = true;
+        player.isKnocked = false;
     }
-
-
     public override void Update()
     {
         base.Update();

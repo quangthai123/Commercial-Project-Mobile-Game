@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemy1_WolfAttackState : EnemyStates
 {
     private Enemy1_Wolf enemy;
-    private float rageTime;
+    //private bool attacked = false;
     public Enemy1_WolfAttackState(Enemy _enemyBase, EnemyStateMachine _enemyStateMachine, string _animBoolName, Enemy1_Wolf _enemy) : base(_enemyBase, _enemyStateMachine, _animBoolName)
     {
         this.enemy = _enemy;
@@ -14,31 +14,44 @@ public class Enemy1_WolfAttackState : EnemyStates
     public override void Start()
     {
         base.Start();
-        rageTime = enemy.rageDuration;
-        enemy.anim.speed = 2f;
+        rb.velocity = Vector3.zero;
+        //attacked = false;
     }
     public override void Exit()
     {
         base.Exit();
-        enemy.anim.speed = 1f;
         rb.velocity = Vector3.zero;
+        enemy.isAttacking = false;
     }
 
 
     public override void Update()
     {
         base.Update();
-        if (!enemy.DetectedPlayer())
-            rageTime -= Time.deltaTime;
-        else
-            rageTime = enemy.rageDuration;
-        rb.velocity = new Vector2(enemy.rageSpeed * enemy.facingDir, 0f);
-        if (enemy.CheckNotFrontGround() || enemy.CheckWalled())
+        if (enemy.CheckOpponentInAttackRange())
+            rb.velocity = Vector3.zero;
+        //else
+        //{
+        //    if(!enemy.CheckNotFrontGround() && !attacked)
+        //    {
+        //        rb.velocity = new Vector2(enemy.attackForce.x * enemy.facingDir, enemy.attackForce.y);
+        //        attacked = true;
+        //    }
+        //    else if(enemy.CheckNotFrontGround() && !attacked)
+        //    {
+        //        rb.velocity = new Vector2(0f, enemy.attackForce.y);
+        //        attacked = true;
+        //    }
+        //}
+        if (enemy.CheckNotFrontGround())
+            rb.velocity = new Vector2(0f, rb.velocity.y);
+        if (enemy.canBeStunned)
+            stateMachine.ChangeState(enemy.stunnedState);
+
+        if (finishAnim && enemy.CheckGround())
         {
-            rb.velocity = Vector2.zero;
-            enemy.Flip();
-        }
-        if (rageTime < 0f)
+            Debug.Log("Stop Attack");
             stateMachine.ChangeState(enemy.idleState);
+        }
     }
 }

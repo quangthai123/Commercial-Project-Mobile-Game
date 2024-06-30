@@ -19,8 +19,6 @@ public class PlayerShieldState : PlayerStates
         player.anim.ResetTrigger("FinishShield");
         player.isShielding = false;
     }
-
-
     public override void Update()
     {
         base.Update();

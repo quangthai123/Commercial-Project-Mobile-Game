@@ -11,6 +11,7 @@ public class PlayerHealState : PlayerStates
     public override void Start()
     {
         base.Start();
+        //PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.healEffect, player.centerEffectPos.position, Quaternion.identity);
     }
     public override void Exit()
     {

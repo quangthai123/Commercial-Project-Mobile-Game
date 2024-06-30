@@ -8,10 +8,12 @@ public class EntityFx : MonoBehaviour
     private SpriteRenderer sr;
     [SerializeField] private Material flashFxMat;
     [SerializeField] private float flashFxDuration;
+    private Color originalColor;
     void Start()
     {
         sr = GetComponentInChildren<SpriteRenderer>();
         originalMat = sr.material;
+        originalColor = sr.color;
     }
     public IEnumerator FlashFX()
     {
@@ -19,4 +21,10 @@ public class EntityFx : MonoBehaviour
         yield return new WaitForSeconds(flashFxDuration);
         sr.material = originalMat;
     }
+    public IEnumerator BeCounterAttackedFlashFx()
+    {
+        sr.color = new Color(255f / 255f, 0f, 0f);
+        yield return new WaitForSeconds(flashFxDuration);
+        sr.color = originalColor;
+    } 
 }

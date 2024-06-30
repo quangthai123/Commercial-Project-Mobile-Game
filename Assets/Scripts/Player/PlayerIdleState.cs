@@ -12,6 +12,7 @@ public class PlayerIdleState : PlayerOnGroundState
     public override void Start()
     {
         base.Start();
+        player.isShielding = false;
     }
     public override void Exit()
     {
@@ -28,7 +29,8 @@ public class PlayerIdleState : PlayerOnGroundState
     protected override void ChangeStateByInput()
     {
         base.ChangeStateByInput();
-        if (horizontalInput != 0)
+        if (horizontalInput != 0 && !Input.GetKeyDown(KeyCode.J) && !Input.GetKeyDown(KeyCode.K) && !Input.GetKeyDown(KeyCode.F)
+            && !(Input.GetKeyDown(KeyCode.LeftShift) && Time.time - player.dashTimer > player.dashCooldown) && !(player.CheckGrounded() && Input.GetKey(KeyCode.Space)) && !(Input.GetKey(KeyCode.S) && !player.canLadder))
             stateMachine.ChangeState(player.runState);
     }
 }

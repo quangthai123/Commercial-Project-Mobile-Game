@@ -14,11 +14,14 @@ public class Enemy1_WolfRunState : EnemyStates
     public override void Start()
     {
         base.Start();
-        float rdTime = Random.Range(enemy.actionMinTime, enemy.actionMaxTime);
-        stateDuration = rdTime;
-        int rdDir = Random.Range(0, 2);
-        if (rdDir == 1)
-            enemy.Flip();
+        if(!enemy.DetectedPlayer())
+        {
+            float rdTime = Random.Range(enemy.actionMinTime, enemy.actionMaxTime);
+            stateDuration = rdTime;
+            int rdDir = Random.Range(0, 2);
+            if (rdDir == 1)
+                enemy.Flip();
+        }
     }
     public override void Exit()
     {
@@ -30,17 +33,26 @@ public class Enemy1_WolfRunState : EnemyStates
     public override void Update()
     {
         base.Update();
-        if(!enemy.DetectedPlayer())
+        if (!enemy.DetectedPlayer())
         {
-            rb.velocity = new Vector2(enemy.moveSpeed * enemy.facingDir, 0f);
+            if (enemy.CheckNotFrontGround() || enemy.CheckWalled())
+            {
+                rb.velocity = Vector2.zero;
+                enemy.Flip();
+            }
             if (stateDuration < 0f)
                 stateMachine.ChangeState(enemy.idleState);
-        } else 
-            stateMachine.ChangeState(enemy.attackState);
-        if (enemy.CheckNotFrontGround() || enemy.CheckWalled())
-        {
-            rb.velocity = Vector2.zero;
-            enemy.Flip();
         }
+        else
+        {
+            FlipToFacePlayer();
+            if(enemy.CheckOpponentInAttackRange())
+            {
+                Debug.Log("Attacked");
+                stateMachine.ChangeState(enemy.attackState);
+                return;
+            }
+        }
+        rb.velocity = new Vector2(enemy.moveSpeed * enemy.facingDir, 0f);
     }
 }

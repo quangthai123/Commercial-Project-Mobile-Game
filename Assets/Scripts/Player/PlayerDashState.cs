@@ -26,6 +26,7 @@ public class PlayerDashState : PlayerStates
             PlayerEffectSpawner.instance.Spawn("endDashFx", player.leftEffectPos.position, Quaternion.identity);
         //} else
         //    PlayerEffectSpawner.instance.Spawn("startDashFx", player.rightEffectPos.position, Quaternion.identity);
+        player.isKnocked = true;
     }
     public override void Exit()
     {
@@ -34,6 +35,7 @@ public class PlayerDashState : PlayerStates
         player.dashCol.GetComponent<CapsuleCollider2D>().enabled = false;
         player.dashCol.GetComponent<BoxCollider2D>().enabled = true;
         player.dashCol.SetActive(false);
+        player.isKnocked = false;
         //if(player.facingDir == 1)
         //{
         if (!player.CheckSlope() && player.CheckGrounded())

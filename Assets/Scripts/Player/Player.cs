@@ -29,6 +29,7 @@ public class Player : Entity
     public PlayerStrongHurtState strongHurtState { get; private set; }
     public PlayerKnockoutState knockoutState { get; private set; }
     public PlayerParryState parryState { get; private set; }
+    public PlayerCounterAttackState counterAttackState { get; private set; }
     #endregion
     [SerializeField] protected Transform groundCheckPos1;
     [SerializeField] protected Transform groundCheckPos2;
@@ -86,7 +87,7 @@ public class Player : Entity
     public Transform leftEffectPos;
     public Transform rightEffectPos;
     public Transform centerEffectPos;
-
+    public Transform shieldEffectPos;
     [Header("Knockback")]
     public Vector2 currentKnockbackDir;
     [SerializeField] protected float currentKnockbackDuration;
@@ -101,6 +102,7 @@ public class Player : Entity
     public float strongParryDuration;
     public float pushBackSpeed;
     [HideInInspector] public bool isStrongStrike;
+    public float spawnParryEffectCooldown;
     private void Awake()
     {
         //Time.timeScale = 0.1f;
@@ -131,6 +133,7 @@ public class Player : Entity
         strongHurtState = new PlayerStrongHurtState(this, stateMachine, "StrongHurt");
         knockoutState = new PlayerKnockoutState(this, stateMachine, "Knockout");
         parryState = new PlayerParryState(this, stateMachine, "Parry");
+        counterAttackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
     }
 
     protected override void Start()
@@ -160,12 +163,25 @@ public class Player : Entity
             startDashShadowCoroutine = false;
             StopCoroutine(dashShadowCoroutine);
         }
+        //Test 
+        //if(Input.GetKeyDown(KeyCode.Alpha1))
+        //    GetDamage(groundCheckPos2, 0);
+        //if (Input.GetKeyDown(KeyCode.Alpha2))
+        //{
+        //    GetDamage(groundCheckPos2, 1);
+        //}
+        //if (Input.GetKeyDown(KeyCode.Alpha3))
+        //{
+        //    GetDamage(groundCheckPos2, 2);
+        //}
     }
     protected override void FlipController()
     {
         if (isKnocked)
             return;
-        if(!CheckSlope()) 
+        //if(!CheckSlope()) 
+        //    base.FlipController();
+        if(!CheckGrounded())
             base.FlipController();
         else
         {
@@ -181,6 +197,9 @@ public class Player : Entity
         while(startDashShadowCoroutine)
         {
             PlayerEffectSpawner.instance.Spawn("dashShadowFx", transform.position, Quaternion.identity);
+            //newShadow.gameObject.SetActive(true);
+            //if (newShadow == null)
+            //    Debug.Log("shadow null");
             yield return new WaitForSeconds(spawnDashShadowCooldown);
         }
     }
@@ -231,6 +250,17 @@ public class Player : Entity
         Gizmos.DrawLine(groundCheckPos1.position, new Vector2(groundCheckPos1.position.x, groundCheckPos1.position.y - groundCheckDistance));
         Gizmos.DrawLine(groundCheckPos2.position, new Vector2(groundCheckPos2.position.x, groundCheckPos2.position.y - groundCheckDistance));
     }
+    public void DoDamageEnemy(int attackWeight)
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPointPos.position, attackRangeRadius, opponentLayer);
+        foreach (Collider2D hit in hits)
+        {
+            if(hit.GetComponentInParent<Enemy>() != null)
+            {
+                hit.GetComponentInParent<Enemy>().GetDamage(transform, attackWeight);
+            }
+        }
+    }
     public virtual void GetDamage(Transform opponentTransform, int attackWeight)
     {
         if (isKnocked)
@@ -239,6 +269,14 @@ public class Player : Entity
         if(isShielding && ((opponentTransform.position.x < transform.position.x && facingDir == -1) || 
             (opponentTransform.position.x > transform.position.x && facingDir == 1)))
         {
+            if(attackWeight == 0 && opponentTransform.GetComponentInParent<Enemy>().isAttacking)
+            {
+                stateMachine.ChangeState(counterAttackState);
+                opponentTransform.GetComponentInParent<Enemy>().canBeStunned = true;
+                anim.GetComponent<PlayerAnimationController>().currentEnemyTarget = opponentTransform;
+                return;
+            }
+            entityFx.StartCoroutine("FlashFX");
             if(attackWeight == 1)
             {
                 currentKnockbackDir = knockbackDirs[3];
@@ -250,12 +288,13 @@ public class Player : Entity
                 currentKnockbackDuration = knockbackDurations[4];
                 isStrongStrike = true;
             }
-            rb.velocity = new Vector2(currentKnockbackDir.x * -facingDir, currentKnockbackDir.y);
+            if(CheckGroundedWhileHurtOrParry())
+                rb.velocity = new Vector2(currentKnockbackDir.x * -facingDir, currentKnockbackDir.y);
             stateMachine.ChangeState(parryState);
             return;
         }
-        HitKnockback(opponentTransform, attackWeight);
         entityFx.StartCoroutine("FlashFX");
+        HitKnockback(opponentTransform, attackWeight);
         Debug.Log(gameObject.name + " was damaged!");
         if (!CheckGrounded() && attackWeight == 0)
         {
@@ -310,7 +349,7 @@ public class Player : Entity
         {
             if(stateMachine.currentState != dashState && stateMachine.currentState != airDashState)
             {
-                GetDamage(collision.transform, 1);
+                GetDamage(collision.transform, 0);
             }
         }
     }

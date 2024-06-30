@@ -15,6 +15,12 @@ public class PlayerEffectSpawner : Spawner
     public string endDashEffect = "endDashFx";
     public string doubleJumpEffect = "doubleJumpFx";
     public string airDashEffect = "airDashFx";
+    public string parryEffect = "parryEffect";
+    public string strongGroundedEffect = "strongGroundedFx";
+    public string healEffect = "healFx";
+    public string flashParryEffect = "flashParryFx";
+    public string flashParryEffect2 = "flashParryFx2";
+    public string strongParryEffect = "strongParryFx";
     protected override void Awake()
     {
         if (instance != null)
@@ -23,5 +29,17 @@ public class PlayerEffectSpawner : Spawner
             instance = this;
         base.Awake();
     }
-
+    public override Transform Spawn(string name, Vector2 pos, Quaternion rot)
+    {
+        base.Spawn(name, pos, rot);
+        if(obj.GetComponent<PlayerEffectDespawnByAnim>() != null)
+        {
+            if(obj.GetComponent<PlayerEffectDespawnByAnim>().canFlip && obj.GetComponent<PlayerEffectDespawnByAnim>().wrongDirWhenSpawn && Player.Instance.facingDir == 1)
+                obj.GetComponent<PlayerEffectDespawnByAnim>().Flip();
+            else if(obj.GetComponent<PlayerEffectDespawnByAnim>().canFlip && !obj.GetComponent<PlayerEffectDespawnByAnim>().wrongDirWhenSpawn && Player.Instance.facingDir == -1)
+                obj.GetComponent<PlayerEffectDespawnByAnim>().Flip();
+        }
+        obj.gameObject.SetActive(true);
+        return obj;
+    }
 }
