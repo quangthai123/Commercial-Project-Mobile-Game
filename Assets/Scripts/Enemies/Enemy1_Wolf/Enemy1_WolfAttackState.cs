@@ -22,14 +22,15 @@ public class Enemy1_WolfAttackState : EnemyStates
         base.Exit();
         rb.velocity = Vector3.zero;
         enemy.isAttacking = false;
+        enemy.transform.Find("Col Trigger").gameObject.layer = LayerMask.NameToLayer("CanDamagePlayer");
     }
 
 
     public override void Update()
     {
         base.Update();
-        if (enemy.CheckOpponentInAttackRange())
-            rb.velocity = Vector3.zero;
+        //if (enemy.CheckOpponentInAttackRange())
+        //    rb.velocity = Vector3.zero;
         //else
         //{
         //    if(!enemy.CheckNotFrontGround() && !attacked)
@@ -47,7 +48,8 @@ public class Enemy1_WolfAttackState : EnemyStates
             rb.velocity = new Vector2(0f, rb.velocity.y);
         if (enemy.canBeStunned)
             stateMachine.ChangeState(enemy.stunnedState);
-
+        if (enemy.CheckGround() && rb.velocity.y < -.1f)
+            rb.velocity = new Vector2(0f, rb.velocity.y);
         if (finishAnim && enemy.CheckGround())
         {
             Debug.Log("Stop Attack");

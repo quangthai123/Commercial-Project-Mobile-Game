@@ -21,6 +21,11 @@ public class PlayerEffectSpawner : Spawner
     public string flashParryEffect = "flashParryFx";
     public string flashParryEffect2 = "flashParryFx2";
     public string strongParryEffect = "strongParryFx";
+    public string attackImpactEffect = "attackImpactFx";
+    public string attackImpact2Effect = "attackImpactFx2";
+    public string attackImpact3Effect = "attackImpactFx3";
+    public string attackImpact4Effect = "attackImpactFx4";
+    public string hitImpactEffect = "hitFx";
     protected override void Awake()
     {
         if (instance != null)

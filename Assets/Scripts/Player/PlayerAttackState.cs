@@ -35,6 +35,7 @@ public class PlayerAttackState : PlayerStates
             return;
         }
         player.anim.SetInteger("AttackCount", comboCounter);
+        
     }
     public override void Exit()
     {

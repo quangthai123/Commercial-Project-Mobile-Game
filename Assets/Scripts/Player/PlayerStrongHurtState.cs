@@ -13,6 +13,7 @@ public class PlayerStrongHurtState : PlayerStates
     {
         base.Start();
         felt = false;
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.transform.position, Quaternion.identity);
     }
     public override void Exit()
     {

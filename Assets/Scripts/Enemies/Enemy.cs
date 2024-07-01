@@ -7,10 +7,10 @@ public class Enemy : Entity
     public EnemyStateMachine stateMachine {  get; private set; }
 
     [Header("Front ground Infor")]
-    [SerializeField] private Transform frontGroundCheckPos;
-    [SerializeField] private float frontGroundCheckDistance;
+    [SerializeField] protected Transform frontGroundCheckPos;
+    [SerializeField] protected float frontGroundCheckDistance;
     [Header("Detect Player Infor")]
-    [SerializeField] private float detectPlayerDistance;
+    [SerializeField] protected float detectPlayerDistance;
     public bool canBeStunned = false;
     public bool canBeHitByCounterAttack = false;
     public bool isAttacking = false;
@@ -19,6 +19,7 @@ public class Enemy : Entity
     public float actionMinTime;
     public float actionMaxTime;
     public float attackCooldown;
+    protected Player player;
 
     protected virtual void Awake()
     {
@@ -28,6 +29,7 @@ public class Enemy : Entity
     {
         base.Start();
         entityFx = GetComponent<EntityFx>();
+        player = Player.Instance;
     }
     protected override void Update()
     {
@@ -61,5 +63,19 @@ public class Enemy : Entity
     public void GetDamage(Transform opponentTransform, int attackWeight)
     {
         entityFx.StartCoroutine(entityFx.FlashFX());
+        float rdX = Random.Range(0f, 1f);
+        float rdY = Random.Range(-1f, 1f);
+        Vector2 rdPos = new Vector2(player.attackEffectPos.position.x + rdX, player.attackEffectPos.position.y + rdY);
+        switch(attackWeight)
+        {
+            case 0:
+                PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.attackImpactEffect, rdPos, Quaternion.identity); break;
+            case 1:
+                PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.attackImpact2Effect, rdPos, Quaternion.identity); break;
+            case 2:
+                PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.attackImpact3Effect, new Vector2(player.attackEffectPos.position.x, player.attackEffectPos.position.y + .33f), Quaternion.identity); break;
+            case 3:
+                PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.attackImpact4Effect, rdPos, Quaternion.identity); break;
+        }
     }
 }

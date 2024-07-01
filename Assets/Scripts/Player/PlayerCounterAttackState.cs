@@ -14,6 +14,7 @@ public class PlayerCounterAttackState : PlayerStates
         PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.parryEffect, player.centerEffectPos.position, Quaternion.identity);
         PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.strongParryEffect, player.shieldEffectPos.position, Quaternion.identity);
         PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.flashParryEffect2, player.shieldEffectPos.position, Quaternion.identity);
+        player.isKnocked = true;
     }
 
     public override void Exit()

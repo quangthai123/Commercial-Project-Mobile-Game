@@ -90,5 +90,7 @@ public class PlayerDashState : PlayerStates
             stateMachine.ChangeState(player.jumpState);
         if(Input.GetKeyDown(KeyCode.J))
             stateMachine.ChangeState(player.shieldState);
+        if (Input.GetKeyDown(KeyCode.K))
+            stateMachine.ChangeState(player.attackState);
     }
 }

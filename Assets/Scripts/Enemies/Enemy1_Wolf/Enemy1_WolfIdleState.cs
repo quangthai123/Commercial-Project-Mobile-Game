@@ -20,12 +20,12 @@ public class Enemy1_WolfIdleState : EnemyStates
         }
         else if (enemy.CheckOpponentInAttackRange())
             stateDuration = enemy.attackCooldown;
-        rb.velocity = Vector3.zero;
+        rb.velocity = new Vector2(0f, rb.velocity.y);
     }
     public override void Update()
     {
         base.Update();
-        rb.velocity = Vector3.zero;
+        rb.velocity = new Vector2(0f, rb.velocity.y);
         if (!enemy.CheckOpponentInAttackRange())
         {
             if (stateDuration < 0f || enemy.DetectedPlayer())

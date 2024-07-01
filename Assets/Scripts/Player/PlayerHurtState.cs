@@ -13,12 +13,14 @@ public class PlayerHurtState : PlayerStates
     {
         base.Start();
         felt = false;
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.transform.position, Quaternion.identity);
     }
 
     public override void Exit()
     {
         base.Exit();
-        rb.velocity = Vector2.zero;
+        if (stateMachine.currentState != player.dashState)
+            rb.velocity = Vector2.zero;
         player.isKnocked = false;
     }
 

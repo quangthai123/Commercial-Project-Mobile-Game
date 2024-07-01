@@ -12,7 +12,8 @@ public class Enemy1_WolfAnimationController : EnemyAnimationController
     }
     private void JumpUpAttackTrigger()
     {
-        if(!enemy.CheckNotFrontGround()) 
+        enemy.transform.Find("Col Trigger").gameObject.layer = LayerMask.NameToLayer("Enemy");
+        if (!enemy.CheckNotFrontGround()) 
             enemy.rb.velocity = new Vector2(enemy.attackForce.x * enemy.facingDir, enemy.attackForce.y);
         else 
             enemy.rb.velocity = new Vector2(0f, enemy.attackForce.y);

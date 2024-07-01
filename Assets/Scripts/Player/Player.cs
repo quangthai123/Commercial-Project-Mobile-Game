@@ -88,6 +88,7 @@ public class Player : Entity
     public Transform rightEffectPos;
     public Transform centerEffectPos;
     public Transform shieldEffectPos;
+    public Transform attackEffectPos;
     [Header("Knockback")]
     public Vector2 currentKnockbackDir;
     [SerializeField] protected float currentKnockbackDuration;
