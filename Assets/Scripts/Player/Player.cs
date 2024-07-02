@@ -30,9 +30,21 @@ public class Player : Entity
     public PlayerKnockoutState knockoutState { get; private set; }
     public PlayerParryState parryState { get; private set; }
     public PlayerCounterAttackState counterAttackState { get; private set; }
+    public PlayerDeathState deathState { get; private set; }
     #endregion
     [SerializeField] protected Transform groundCheckPos1;
     [SerializeField] protected Transform groundCheckPos2;
+    [Header("Dash Infor")]
+    public float dashSpeed;
+    public float dashDuration; // original 0.3f // update 0.45f
+    public float dashCooldown; // original 0.8f // update 0.4f
+    [Header("Shield Infor")]
+    public float shieldDuration; // original 0.2f // update 0.5f
+    public bool isShielding = false;
+    [Header("Heal Infor")]
+    public float healingDuration; // original 1.8f // update 0.9f
+    public bool cantBeHurtWhileHealing = false;
+    [Space]
     [Header("Jump Infor")]
     public float jumpDuration;
     public float jumpForce;
@@ -43,15 +55,8 @@ public class Player : Entity
     public float allowWallJumpUpMaxTime;
     public float allowWallJumpUpMinTime;
     [HideInInspector] public bool doubleJumped;
-    [Header("Shield Infor")]
-    public float shieldDuration;
-    public bool isShielding = false;
     [Header("Attack Infor")]
     public float allowComboTime;
-    [Header("Dash Infor")]
-    public float dashSpeed;
-    public float dashDuration;
-    public float dashCooldown;
     [SerializeField] private float spawnDashShadowCooldown;
     [SerializeField] private bool startDashShadowCoroutine = false;
     [Header("Ceilling Collision Infor")]
@@ -89,6 +94,7 @@ public class Player : Entity
     public Transform centerEffectPos;
     public Transform shieldEffectPos;
     public Transform attackEffectPos;
+    public Transform hitEffectPos;
     [Header("Knockback")]
     public Vector2 currentKnockbackDir;
     [SerializeField] protected float currentKnockbackDuration;
@@ -104,6 +110,7 @@ public class Player : Entity
     public float pushBackSpeed;
     [HideInInspector] public bool isStrongStrike;
     public float spawnParryEffectCooldown;
+    [HideInInspector] public PlayerStats playerStats;
     private void Awake()
     {
         //Time.timeScale = 0.1f;
@@ -135,6 +142,7 @@ public class Player : Entity
         knockoutState = new PlayerKnockoutState(this, stateMachine, "Knockout");
         parryState = new PlayerParryState(this, stateMachine, "Parry");
         counterAttackState = new PlayerCounterAttackState(this, stateMachine, "CounterAttack");
+        deathState = new PlayerDeathState(this, stateMachine, "Dead");
     }
 
     protected override void Start()
@@ -145,6 +153,7 @@ public class Player : Entity
         dashCol = transform.Find("Dash Col No Trigger").gameObject;
         normalCol = transform.Find("Col No Trigger").gameObject;
         entityFx = GetComponent<EntityFx>();
+        playerStats = GetComponent<PlayerStats>();
     }
     protected override void Update()
     {
@@ -152,7 +161,8 @@ public class Player : Entity
         stateMachine.currentState.Update();
         HandleSlopeMoveDir();
         onSlope = CheckSlope();
-        if((stateMachine.currentState == dashState || stateMachine.currentState == airDashState) && !startDashShadowCoroutine)
+        isDead = playerStats.currentHealth == 0;
+        if ((stateMachine.currentState == dashState || stateMachine.currentState == airDashState) && !startDashShadowCoroutine)
         {
             Debug.Log("Start Coroutine");
             startDashShadowCoroutine = true;
@@ -251,20 +261,20 @@ public class Player : Entity
         Gizmos.DrawLine(groundCheckPos1.position, new Vector2(groundCheckPos1.position.x, groundCheckPos1.position.y - groundCheckDistance));
         Gizmos.DrawLine(groundCheckPos2.position, new Vector2(groundCheckPos2.position.x, groundCheckPos2.position.y - groundCheckDistance));
     }
-    public void DoDamageEnemy(int attackWeight)
+    public void DoDamageEnemy(int attackWeight, float _damage)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPointPos.position, attackRangeRadius, opponentLayer);
         foreach (Collider2D hit in hits)
         {
             if(hit.GetComponentInParent<Enemy>() != null)
             {
-                hit.GetComponentInParent<Enemy>().GetDamage(transform, attackWeight);
+                hit.GetComponentInParent<Enemy>().GetDamage(transform, attackWeight, _damage);
             }
         }
     }
-    public virtual void GetDamage(Transform opponentTransform, int attackWeight)
+    public virtual void GetDamage(Transform opponentTransform, int attackWeight, bool isImpactDamage)
     {
-        if (isKnocked)
+        if (isKnocked || cantBeHurtWhileHealing)
             return;
         isKnocked = true;
         if(isShielding && ((opponentTransform.position.x < transform.position.x && facingDir == -1) || 
@@ -296,6 +306,10 @@ public class Player : Entity
         }
         entityFx.StartCoroutine("FlashFX");
         HitKnockback(opponentTransform, attackWeight);
+        if (!isImpactDamage)
+            playerStats.GetDamageStat(opponentTransform.GetComponentInParent<Enemy>().enemyStats.damage);
+        else
+            playerStats.GetDamageStat(opponentTransform.GetComponentInParent<Enemy>().enemyStats.impactDamage);
         Debug.Log(gameObject.name + " was damaged!");
         if (!CheckGrounded() && attackWeight == 0)
         {
@@ -350,7 +364,7 @@ public class Player : Entity
         {
             if(stateMachine.currentState != dashState && stateMachine.currentState != airDashState)
             {
-                GetDamage(collision.transform, 0);
+                GetDamage(collision.transform, 0, true);
             }
         }
     }

@@ -14,6 +14,7 @@ public class PlayerAttackState : PlayerStates
     public override void Start()
     {
         base.Start();
+        //player.anim.speed *= 1.8f;
         if (player.CheckGrounded())
         {
             if (Time.time - attackExitTime > player.allowComboTime || !player.CheckOpponentInAttackRange())
@@ -52,6 +53,7 @@ public class PlayerAttackState : PlayerStates
         }
         else
             airAttackCounter++;
+        //player.anim.speed /= 1.8f;
     }
 
 

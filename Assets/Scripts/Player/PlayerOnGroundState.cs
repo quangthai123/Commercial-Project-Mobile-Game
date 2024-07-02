@@ -36,7 +36,7 @@ public class PlayerOnGroundState : PlayerStates
             stateMachine.ChangeState(player.attackState);
         if(Input.GetKeyDown(KeyCode.LeftShift) && Time.time - player.dashTimer > player.dashCooldown)
         {
-            player.dashTimer = Time.time;
+            
             stateMachine.ChangeState(player.dashState);
         }
         if (Input.GetKeyDown(KeyCode.F))

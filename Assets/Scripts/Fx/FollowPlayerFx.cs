@@ -6,6 +6,6 @@ public class FollowPlayerFx : MonoBehaviour
 {
     void LateUpdate()
     {
-        transform.position = Player.Instance.transform.position;
+        transform.position = Player.Instance.hitEffectPos.position;
     }
 }

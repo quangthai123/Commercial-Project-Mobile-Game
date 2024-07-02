@@ -7,7 +7,7 @@ public class Entity : MonoBehaviour
     public Animator anim { get; protected set; }
     public Rigidbody2D rb { get; protected set; }
     
-    public float moveSpeed;
+    public float moveSpeed; // player : original 12 update 15
     public int facingDir;
     [Header("Ground collision Infor")]
     [SerializeField] protected float groundCheckDistance;
@@ -22,6 +22,7 @@ public class Entity : MonoBehaviour
     [SerializeField] protected float attackRangeRadius;
     [SerializeField] protected LayerMask opponentLayer;
     [HideInInspector] public bool knockFlip;
+    [HideInInspector] public bool isDead = false;
     protected virtual void Start()
     {
         rb = GetComponent<Rigidbody2D>();

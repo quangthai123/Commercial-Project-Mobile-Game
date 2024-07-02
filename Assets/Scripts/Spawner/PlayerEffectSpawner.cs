@@ -26,6 +26,7 @@ public class PlayerEffectSpawner : Spawner
     public string attackImpact3Effect = "attackImpactFx3";
     public string attackImpact4Effect = "attackImpactFx4";
     public string hitImpactEffect = "hitFx";
+    public string hitGroundedEffect = "hitGroundedFx";
     protected override void Awake()
     {
         if (instance != null)

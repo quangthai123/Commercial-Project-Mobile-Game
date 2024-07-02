@@ -13,7 +13,7 @@ public class PlayerHurtState : PlayerStates
     {
         base.Start();
         felt = false;
-        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.transform.position, Quaternion.identity);
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.hitEffectPos.position, Quaternion.identity);
     }
 
     public override void Exit()
@@ -32,8 +32,13 @@ public class PlayerHurtState : PlayerStates
         if(!player.CheckGroundedWhileHurtOrParry())
             rb.velocity = new Vector2(0f, rb.velocity.y);
         if (felt && player.CheckGrounded())
+        {
             rb.velocity = Vector2.zero;
-        if (finishAnim)
+            if (player.isDead)
+                stateMachine.ChangeState(player.deathState);
+        }
+        if (finishAnim && !player.isDead)
             stateMachine.ChangeState(player.idleState);
+        
     }
 }

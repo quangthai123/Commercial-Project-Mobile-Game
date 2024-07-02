@@ -16,6 +16,7 @@ public class PlayerKnockoutState : PlayerStates
         stateDuration = player.knockOutDuration;
         player.anim.ResetTrigger("GetUp");
         //startCalled = true;
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitGroundedEffect, new Vector2(player.centerEffectPos.position.x - player.facingDir * .8f, player.centerEffectPos.position.y), Quaternion.identity);
     }
     public override void Exit()
     {

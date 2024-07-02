@@ -36,6 +36,7 @@ public class PlayerDashState : PlayerStates
         player.dashCol.GetComponent<BoxCollider2D>().enabled = true;
         player.dashCol.SetActive(false);
         player.isKnocked = false;
+        player.dashTimer = Time.time;
         //if(player.facingDir == 1)
         //{
         if (!player.CheckSlope() && player.CheckGrounded())

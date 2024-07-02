@@ -13,7 +13,7 @@ public class PlayerStrongHurtState : PlayerStates
     {
         base.Start();
         felt = false;
-        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.transform.position, Quaternion.identity);
+        PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.hitImpactEffect, player.hitEffectPos.position, Quaternion.identity);
     }
     public override void Exit()
     {
@@ -26,7 +26,9 @@ public class PlayerStrongHurtState : PlayerStates
         base.Update();
         if (rb.velocity.y < -.1f)
             felt = true;
-        if (felt && player.CheckGrounded())
+        if (felt && player.CheckGrounded() && !player.isDead)
             stateMachine.ChangeState(player.knockoutState);
+        else if (felt && player.CheckGrounded() && player.isDead)
+            stateMachine.ChangeState(player.deathState);
     }
 }

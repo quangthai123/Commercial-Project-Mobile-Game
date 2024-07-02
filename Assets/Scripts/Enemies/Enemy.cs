@@ -20,7 +20,7 @@ public class Enemy : Entity
     public float actionMaxTime;
     public float attackCooldown;
     protected Player player;
-
+    [HideInInspector] public EnemyStats enemyStats;
     protected virtual void Awake()
     {
         stateMachine = new EnemyStateMachine();
@@ -29,12 +29,14 @@ public class Enemy : Entity
     {
         base.Start();
         entityFx = GetComponent<EntityFx>();
+        enemyStats = GetComponent<EnemyStats>();
         player = Player.Instance;
     }
     protected override void Update()
     {
         base.Update();
         stateMachine.currentState.Update();
+        isDead = enemyStats.currentHealth == 0;
     }
     public bool CheckGround() => Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
     public bool CheckNotFrontGround() => !Physics2D.Raycast(frontGroundCheckPos.position, Vector2.down, frontGroundCheckDistance, whatIsGround);
@@ -56,11 +58,11 @@ public class Enemy : Entity
         {
             if (hit.GetComponentInParent<Player>() != null)
             {
-                hit.GetComponentInParent<Player>().GetDamage(transform, attackWeight);
+                hit.GetComponentInParent<Player>().GetDamage(transform, attackWeight, false);
             }
         }
     }
-    public void GetDamage(Transform opponentTransform, int attackWeight)
+    public void GetDamage(Transform opponentTransform, int attackWeight, float _damage)
     {
         entityFx.StartCoroutine(entityFx.FlashFX());
         float rdX = Random.Range(0f, 1f);
@@ -77,5 +79,6 @@ public class Enemy : Entity
             case 3:
                 PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.attackImpact4Effect, rdPos, Quaternion.identity); break;
         }
+        enemyStats.GetDamageStat(_damage);
     }
 }

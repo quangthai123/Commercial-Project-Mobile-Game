@@ -11,11 +11,15 @@ public class PlayerHealState : PlayerStates
     public override void Start()
     {
         base.Start();
-        //PlayerEffectSpawner.instance.Spawn(PlayerEffectSpawner.instance.healEffect, player.centerEffectPos.position, Quaternion.identity);
+        player.knockFlip = true;
+        stateDuration = player.healingDuration;
+        //player.anim.speed *= 2;
     }
     public override void Exit()
     {
         base.Exit();
+        player.knockFlip = false;
+        //player.anim.speed /= 2;
     }
 
 
@@ -23,7 +27,7 @@ public class PlayerHealState : PlayerStates
     {
         base.Update();
         rb.velocity = Vector2.zero;
-        if (finishAnim)
+        if (stateDuration < 0f)
             stateMachine.ChangeState(player.idleState);
     }
 

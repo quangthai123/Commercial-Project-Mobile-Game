@@ -63,6 +63,18 @@ public class PlayerAnimationController : MonoBehaviour
     }
     public void AttackTrigger(int attackWeight)
     {
-        player.DoDamageEnemy(attackWeight);
+        switch (attackWeight)
+        {
+            case 0:
+                player.DoDamageEnemy(attackWeight, player.playerStats.damage.GetValue()); break;
+            case 1:
+                player.DoDamageEnemy(attackWeight, player.playerStats.damage.GetValue() * 1.1f); break;
+            case 2:
+                player.DoDamageEnemy(attackWeight, player.playerStats.damage.GetValue() * 1.5f); break;
+            case 3:
+                player.DoDamageEnemy(attackWeight, player.playerStats.damage.GetValue() * 1.25f); break;
+            case 4:
+                player.DoDamageEnemy(attackWeight-1, player.playerStats.damage.GetValue() * 2.5f); break;
+        }
     }
 }

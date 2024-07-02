@@ -12,12 +12,14 @@ public class PlayerShieldState : PlayerStates
     {
         base.Start();
         stateDuration = player.shieldDuration;
+        player.knockFlip = true;
     }
     public override void Exit()
     {
         base.Exit();
         player.anim.ResetTrigger("FinishShield");
         player.isShielding = false;
+        player.knockFlip = false;
     }
     public override void Update()
     {
